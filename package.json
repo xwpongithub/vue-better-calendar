@@ -1,0 +1,97 @@
+{
+  "name": "vue-better-calendar",
+  "version": "0.0.1",
+  "description": "A calendar component for vuejs.",
+  "author": {
+    "name": "Xiao Wenpeng",
+    "email": "xwpjava@126.com"
+  },
+  "bugs": {
+    "url": "https://github.com/xwpongithub/vue-better-calendar/issues"
+  },
+  "homepage": "https://github.com/xwpongithub/vue-better-calendar",
+  "keywords": [
+    "calendar",
+    "javascript"
+  ],
+  "licenses": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:xwpongithub/vue-better-calendar.git"
+  },
+  "scripts": {
+    "build": "node build/build.js",
+    "dev": "node build/dev-server.js",
+    "release": "bash ./build/release/publish.sh",
+    "demo-build": "node build/example/build.js"
+  },
+  "devDependencies": {
+    "autoprefixer": "^7.2.1",
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.0.3",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-istanbul": "^4.1.5",
+    "babel-plugin-transform-es2015-modules-umd": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "connect-history-api-fallback": "^1.5.0",
+    "copy-webpack-plugin": "^4.2.3",
+    "cross-env": "^5.1.1",
+    "css-loader": "^0.28.7",
+    "eslint": "^4.12.1",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-friendly-formatter": "^3.0.0",
+    "eslint-loader": "^1.9.0",
+    "eslint-plugin-html": "^4.0.1",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "eventsource-polyfill": "^0.9.6",
+    "express": "^4.16.2",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^1.1.5",
+    "friendly-errors-webpack-plugin": "^1.6.1",
+    "html-webpack-plugin": "^2.30.1",
+    "http-proxy-middleware": "^0.17.4",
+    "inject-loader": "^3.0.1",
+    "opn": "^5.1.0",
+    "optimize-css-assets-webpack-plugin": "^3.2.0",
+    "ora": "^1.3.0",
+    "postcss-loader": "^2.0.9",
+    "shelljs": "^0.7.8",
+    "style-loader": "^0.19.0",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.1",
+    "url-loader": "^0.6.2",
+    "vue": "^2.5.13",
+    "vue-loader": "^13.5.0",
+    "vue-router": "^3.0.1",
+    "vue-style-loader": "^3.0.3",
+    "vue-template-compiler": "^2.5.13",
+    "webpack": "^3.10.0",
+    "webpack-bundle-analyzer": "^2.9.1",
+    "webpack-dev-middleware": "^1.12.2",
+    "webpack-hot-middleware": "^2.21.0",
+    "webpack-merge": "^4.1.1"
+  },
+  "engines": {
+    "node": ">= 4.0.0",
+    "npm": ">= 3.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 20",
+    "not ie_mob <= 100",
+    "not ff <= 100",
+    "not and_ff <= 100",
+    "not Edge <= 100",
+    "Android >= 4.0",
+    "iOS >= 7.0"
+  ]
+}
