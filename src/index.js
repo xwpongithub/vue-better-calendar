@@ -1,7 +1,7 @@
 import Calendar from './vue-better-calendar'
 
 /* eslint-disable no-undef */
-Calendar.version = __VERSION__
+Calendar.version = '0.0.1'
 
 Calendar.install = function(Vue) {
   Vue.component(Calendar.name, Calendar)
