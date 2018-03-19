@@ -144,7 +144,7 @@
           value++
         }
         // 用于显示目的（一般月份是从0开始的）
-        if(isString) {
+        if (isString) {
           return value + 1
         }
         return value
@@ -230,7 +230,7 @@
         this.$emit(EVENT_SELECT_YEAR, year)
       },
       setToday() {
-        let now = new Date();
+        let now = new Date()
         this.year = now.getFullYear()
         this.month = now.getMonth()
         this.day = now.getDate()
