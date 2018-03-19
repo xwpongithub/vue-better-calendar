@@ -118,22 +118,11 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     }
   }
 
-  console.log(utils.lYearDays(1987));
-  console.log(utils.leapMonth(1987));
-  console.log(utils.leapDays(1987));
-  console.log(utils.monthDays(1987, 1));
-  console.log(utils.solarDays(2016, 2));
-  console.log(utils.toGanZhiYear(2018));
-  console.log(utils.toAstro(6, 14));
-  console.log(utils.toGanZhi(2));
-  console.log(utils.getTerm(1987, 3));
-  console.log(utils.toChinaMonth(1));
-  console.log(utils.toChinaDay(9));
-  console.log(utils.getAnimal(2017));
-  console.log(utils.solar2lunar(1987, 11, 1));
-  console.log(utils.lunar2solar(1993, 1, 8));
-
   var COMPONENT_NAME = 'vue-better-calendar';
+
+  var MULTI_MODE = 'multi';
+  var RANGE_MODE = 'range';
+  var SIGN_MODE = 'sign';
 
   var EVENT_SELECT_YEAR = 'select-year';
   var EVENT_SELECT_MONTH = 'select-month';
@@ -142,13 +131,89 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
   exports.default = {
     name: COMPONENT_NAME,
+    props: {
+      value: {
+        type: Array,
+        default: function _default() {
+          return [];
+        }
+      },
+
+      mode: {
+        type: String,
+        default: MULTI_MODE,
+        validator: function validator(value) {
+          return [MULTI_MODE, RANGE_MODE, SIGN_MODE].indexOf(value) > -1;
+        }
+      },
+
+      beginDate: {
+        type: Array,
+        default: function _default() {
+          return [];
+        }
+      },
+
+      endDate: {
+        type: Array,
+        default: function _default() {
+          return [];
+        }
+      },
+
+      signedDates: {
+        type: Array,
+        default: function _default() {
+          return [];
+        }
+      },
+
+      isZeroPad: {
+        type: Boolean,
+        default: false
+      },
+
+      disabledDate: {
+        type: Array,
+        default: function _default() {
+          return [];
+        }
+      },
+
+      showLunar: {
+        type: Boolean,
+        default: false
+      },
+
+      weeks: {
+        type: Array,
+        default: function _default() {
+          return ['日', '一', '二', '三', '四', '五', '六'];
+        }
+      },
+
+      months: {
+        type: Array,
+        default: function _default() {
+          return ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+        }
+      },
+
+      events: {
+        type: Object,
+        default: function _default() {
+          return {};
+        }
+      }
+    },
     data: function data() {
       return {
         years: [],
+        days: [],
         year: 0,
         month: 0,
         day: 0,
-        days: [],
+        today: [],
         showYearPanel: false
       };
     },
@@ -195,7 +260,47 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
         return value;
       }
     },
+    created: function created() {
+      this.festival = {
+        lunar: {
+          '1-1': '春节',
+          '1-15': '元宵节',
+          '2-2': '龙头节',
+          '5-5': '端午节',
+          '7-7': '七夕节',
+          '7-15': '中元节',
+          '8-15': '中秋节',
+          '9-9': '重阳节',
+          '10-1': '寒衣节',
+          '10-15': '下元节',
+          '12-8': '腊八节',
+          '12-23': '祭灶节'
+        },
+
+        gregorian: {
+          '1-1': '元旦',
+          '2-14': '情人节',
+          '3-8': '妇女节',
+          '3-12': '植树节',
+          '4-5': '清明节',
+          '5-1': '劳动节',
+          '5-4': '青年节',
+          '6-1': '儿童节',
+          '7-1': '建党节',
+          '8-1': '建军节',
+          '9-10': '教师节',
+          '10-1': '国庆节',
+          '12-24': '平安夜',
+          '12-25': '圣诞节'
+        }
+      };
+    },
+    mounted: function mounted() {
+      this.init();
+    },
+
     methods: {
+      init: function init() {},
       render: function render(year, month) {},
       prev: function prev(e) {
         if (this.month === 0) {
@@ -253,6 +358,38 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
         var currentMonth = this.month + 1;
         this.$emit(EVENT_SELECT_MONTH, currentMonth, this.year);
         this.$emit(eventType, currentMonth, this.year);
+      }
+    },
+    watch: {
+      events: function events() {
+        var _this2 = this;
+
+        this.$nextTick(function () {
+          _this2.render(_this2.year, _this2.month);
+        });
+      },
+
+      value: {
+        handler: function handler() {
+          this.init();
+        },
+
+        deep: true
+      },
+      mode: function mode() {
+        this.init();
+      },
+
+      signedDates: {
+        handler: function handler() {
+          var _this3 = this;
+
+          this.$nextTick(function () {
+            _this3.render(_this3.year, _this3.month);
+          });
+        },
+
+        deep: true
       }
     }
   };
@@ -316,7 +453,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__);
 /* harmony namespace reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_44908aaa_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_f49cf3d2_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__ = __webpack_require__(11);
 function injectStyle (ssrContext) {
   __webpack_require__(3)
 }
@@ -336,7 +473,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue___default.a,
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_44908aaa_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_f49cf3d2_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -357,7 +494,7 @@ var content = __webpack_require__(4);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(6)("68620a48", content, true, {});
+var update = __webpack_require__(6)("78eb262e", content, true, {});
 
 /***/ }),
 /* 4 */
@@ -1127,6 +1264,21 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     var cD = calObj.getUTCDate();
     return solar2lunar(cY, cM, cD);
   }
+
+  console.log(utils.lYearDays(1987));
+  console.log(utils.leapMonth(1987));
+  console.log(utils.leapDays(1987));
+  console.log(utils.monthDays(1987, 1));
+  console.log(utils.solarDays(2016, 2));
+  console.log(utils.toGanZhiYear(2018));
+  console.log(utils.toAstro(6, 14));
+  console.log(utils.toGanZhi(2));
+  console.log(utils.getTerm(1987, 3));
+  console.log(utils.toChinaMonth(1));
+  console.log(utils.toChinaDay(9));
+  console.log(utils.getAnimal(2017));
+  console.log(utils.solar2lunar(1987, 11, 1));
+  console.log(utils.lunar2solar(1993, 1, 8));
 });
 
 /***/ }),
