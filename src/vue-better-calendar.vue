@@ -90,6 +90,7 @@
         }
       },
       // 自定义事件
+      // {'2018-2-28': 'wifeBirthday'}
       events: {
         type: Object,
         default() {
@@ -101,6 +102,7 @@
       return {
         years: [],
         days: [],
+        multiDays: [],
         year: 0,
         month: 0,
         day: 0,
@@ -116,36 +118,10 @@
         }
         return value
       },
-      prevMonth(isString) {
-        let value = this.month
-        if (this.month - 1 < 0) {
-          value = 11
-        } else {
-          value--
-        }
-        // 用于显示目的（一般月份是从0开始的）
-        if (isString) {
-          return value + 1
-        }
-        return value
-      },
       nextYear() {
         let value = this.year
         if (this.month + 1 > 11) {
           value++
-        }
-        return value
-      },
-      nextMonth(isString) {
-        let value = this.month
-        if (this.month + 1 > 11) {
-          value = 0
-        } else {
-          value++
-        }
-        // 用于显示目的（一般月份是从0开始的）
-        if (isString) {
-          return value + 1
         }
         return value
       }
@@ -190,8 +166,66 @@
       this.init()
     },
     methods: {
-      init() {},
-      render(year, month) {},
+      init() {
+        let now = new Date()
+        this.year = now.getFullYear()
+        this.month = now.getMonth()
+        this.day = now.getDate()
+        if (this.value.length) {
+          if (this.mode === RANGE_MODE || this.mode === MULTI_MODE) {
+            this.year = parseInt(this.value[0][0])
+            this.month = parseInt(this.value[0][1]) - 1
+            this.day = parseInt(this.value[0][2])
+            if (this.mode === RANGE_MODE) {
+              let endYear = parseInt(this.value[1][0])
+              let endMonth = parseInt(this.value[1][1]) - 1
+              let endDay = parseInt(this.value[1][2])
+              this.beginDate = [this.year, this.month, this.day]
+              this.endDate = [endYear, endMonth, endDay]
+            } else {
+              this.multiDays = this.value
+            }
+          } else {
+            this.year = parseInt(this.value[0])
+            this.month = parseInt(this.value[1]) - 1
+            this.day = parseInt(this.value[2])
+          }
+        }
+        this.render(this.year, this.month)
+      },
+      render(year, month) {
+        let firstDayOfMonth = new Date(year, month, 1).getDay() // 前一个月的第一天是星期几
+        let lastDateOfMonth = new Date(year, month + 1, 0).getDate() // 当月最后一天
+        let lastDayOfLastMonth = new Date(year, month, 0).getDate() // 前一个月的最后一天
+
+        let selectedDates = this.value
+        let i
+        let line = 0
+        let temp = []
+        let nextMonthPushDays = 1
+        for (i = 1; i <= lastDateOfMonth; i++) {
+          let day = new Date(year, month, i).getDay()
+          let k
+          // 第一行
+          if (day === 0) {
+            temp[line] = []
+          } else if (i === 1) {
+            temp[line] = []
+            k = lastDayOfLastMonth - firstDayOfMonth + 1
+            for (let j = 0; j < firstDayOfMonth; j++) {
+              let disabledDate = Object.assign({
+                day: k,
+                disabled: true
+              },
+              this._getLunarInfo(this.prevYear, this._getPrevMonth(true), k),
+              this._getEvents(this.prevYear, this._getPrevMonth(true), k))
+              temp[line].push(disabledDate)
+              k++
+            }
+            console.log(temp[line])
+          }
+        }
+      },
       // 上月
       prev(e) {
         if (this.month === 0) {
@@ -246,6 +280,61 @@
         const currentMonth = this.month + 1
         this.$emit(EVENT_SELECT_MONTH, currentMonth, this.year)
         this.$emit(eventType, currentMonth, this.year)
+      },
+      // 获取农历信息
+      _getLunarInfo(year, month, day) {
+        let lunarInfo = utils.solar2lunar(year, month, day)
+        let lunarValue = lunarInfo.IDayCn
+        let isLunarFestival = false
+        let isGregorianFestival = false
+        if (this.festival.lunar[lunarInfo.lMonth + '-' + lunarInfo.lDay]) {
+          lunarValue = this.festival.lunar[lunarInfo.lMonth + '-' + lunarInfo.lDay]
+          isLunarFestival = true
+        } else if (this.festival.gregorian[month + '-' + day]) {
+          lunarValue = this.festival.gregorian[month + '-' + day]
+          isGregorianFestival = true
+        }
+        return {
+          lunar: lunarValue,
+          isLunarFestival: isLunarFestival,
+          isGregorianFestival: isGregorianFestival
+        }
+      },
+      _getPrevMonth(isString) {
+        let value = this.month
+        if (this.month - 1 < 0) {
+          value = 11
+        } else {
+          value--
+        }
+        // 用于显示目的（一般月份是从0开始的）
+        if (isString) {
+          return value + 1
+        }
+        return value
+      },
+      _getNextMonth(isString) {
+        let value = this.month
+        if (this.month + 1 > 11) {
+          value = 0
+        } else {
+          value++
+        }
+        // 用于显示目的（一般月份是从0开始的）
+        if (isString) {
+          return value + 1
+        }
+        return value
+      },
+      // 获取自定义事件
+      _getEvents(year, month, day) {
+        if (!Object.keys(this.events).length) return
+        let eventName = this.events[`${year}-${month}-${day}`]
+        let data = {}
+        if (eventName) {
+          data.eventName = eventName
+        }
+        return data
       }
     },
     watch: {
