@@ -32,20 +32,20 @@
       // 日历模式
       mode: {
         type: String,
-        default: MULTI_MODE,
+        default: RANGE_MODE,
         validator(value) {
           return [MULTI_MODE, RANGE_MODE, SIGN_MODE].indexOf(value) > -1
         }
       },
       // 开始选择日期
-      beginDate: {
+      rangeBeginDate: {
         type: Array,
         default() {
           return []
         }
       },
       // 结束选择日期
-      endDate: {
+      rangeEndDate: {
         type: Array,
         default() {
           return []
@@ -64,7 +64,7 @@
         default: false
       },
       // 屏蔽的日期
-      disabledDate: {
+      disabledDates: {
         type: Array,
         default() {
           return []
@@ -107,7 +107,9 @@
         month: 0,
         day: 0,
         today: [],
-        showYearPanel: false
+        showYearPanel: false,
+        beginDate: [],
+        endDate: []
       }
     },
     computed: {
@@ -191,9 +193,11 @@
             this.day = parseInt(this.value[2])
           }
         }
-        this.render(this.year, this.month)
+        this.render()
       },
-      render(year, month) {
+      render() {
+        let year = this.year
+        let month = this.month
         let firstDayOfMonth = new Date(year, month, 1).getDay() // 前一个月的第一天是星期几
         let lastDateOfMonth = new Date(year, month + 1, 0).getDate() // 当月最后一天
         let lastDayOfLastMonth = new Date(year, month, 0).getDate() // 前一个月的最后一天
@@ -222,9 +226,80 @@
               temp[line].push(disabledDate)
               k++
             }
-            console.log(temp[line])
+          }
+          if (this.mode === RANGE_MODE) {
+            let options = Object.assign(
+              {
+                day: i
+              },
+              this._getLunarInfo(this.year, this.month + 1, i),
+              this._getEvents(this.year, this.month + 1, i))
+            let beginDate = this.beginDate
+            let endDate = this.endDate
+            if (beginDate.length) {
+              let beginTime = Number(new Date(beginDate[0], beginDate[1], beginDate[2]))
+              let endTime = Number(new Date(endDate[0], endDate[1], endDate[2]))
+              let stepTime = Number(new Date(this.year, this.month, i))
+              if (beginTime <= stepTime && endTime >= stepTime) {
+                options.selected = true
+              }
+            }
+            let rangeBeginDate = this.rangeBeginDate
+            if (rangeBeginDate.length) {
+              let beginTime = Number(new Date(parseInt(rangeBeginDate[0]), parseInt(rangeBeginDate[1]) - 1, parseInt(rangeBeginDate[2])))
+              if (beginTime > Number(new Date(this.year, this.month, i))) options.disabled = true
+            }
+            let rangeEndDate = this.rangeEndDate
+            if (rangeEndDate.length) {
+              let endTime = Number(new Date(parseInt(rangeEndDate[0]), parseInt(rangeEndDate[1]) - 1, parseInt(rangeEndDate[2])))
+              if (endTime < Number(new Date(this.year, this.month, i))) options.disabled = true
+            }
+            let disabledDates = this.disabledDates
+            if (disabledDates.length) {
+              if (disabledDates.filter(v => {
+                return this.year === v[0] && this.month === v[1] - 1 && i === v[2]
+              }).length) {
+                options.disabled = true
+              }
+            }
+            temp[line].push(options)
+          }
+          // 到周六换行
+          if (day === 6 && i < lastDateOfMonth) {
+            line++
+          } else if (i === lastDateOfMonth) {
+            let k = 1
+            for (let d = day; d < 6; d++) {
+              temp[line].push(Object.assign(
+                {
+                  day: k,
+                  disabled: true
+                },
+                this._getLunarInfo(this.nextYear, this._getNextMonth(true), k),
+                this._getEvents(this.nextYear, this._getNextMonth(true), k)
+              ))
+              k++
+            }
+            nextMonthPushDays = k
+          }
+        } // for 循环结束
+        // 补充第六行让视觉稳定
+        if (line <= 5 && nextMonthPushDays > 0) {
+          for (let i = line + 1; i <= 5; i++) {
+            temp[i] = []
+            let start = nextMonthPushDays + (i - line - 1) * 7
+            for (let d = start; d <= start + 6; d++) {
+              temp[i].push(Object.assign({
+                  day: d,
+                  disabled: true
+                },
+                this._getLunarInfo(this.nextYear, this._getNextMonth(true), d),
+                this._getEvents(this.nextYear, this._getNextMonth(true), d)
+              ))
+            }
           }
         }
+        this.days = temp
       },
       // 上月
       prev(e) {
@@ -260,7 +335,7 @@
       selectYear(year) {
         this.showYearPanel = false
         this.year = year
-        this.render(this.year, this.month)
+        this.render()
         this.$emit(EVENT_SELECT_YEAR, year)
       },
       setToday() {
@@ -268,7 +343,7 @@
         this.year = now.getFullYear()
         this.month = now.getMonth()
         this.day = now.getDate()
-        this.render(this.year, this.month)
+        this.render()
         // 遍历当前日找到选中
         this.days.forEach(item => {
           let day = item.find(vv => vv.day === this.day && !vv.disabled)
@@ -276,7 +351,7 @@
         })
       },
       _emitSelectMonthEvent(eventType) {
-        this.render(this.year, this.month)
+        this.render()
         const currentMonth = this.month + 1
         this.$emit(EVENT_SELECT_MONTH, currentMonth, this.year)
         this.$emit(eventType, currentMonth, this.year)
@@ -340,7 +415,7 @@
     watch: {
       events() {
         this.$nextTick(() => {
-          this.render(this.year, this.month)
+          this.render()
         })
       },
       value: {
@@ -355,7 +430,7 @@
       signedDates: {
         handler() {
           this.$nextTick(() => {
-            this.render(this.year, this.month)
+            this.render()
           })
         },
         deep: true

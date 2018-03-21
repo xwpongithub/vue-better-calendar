@@ -203,20 +203,20 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
       mode: {
         type: String,
-        default: MULTI_MODE,
+        default: RANGE_MODE,
         validator: function validator(value) {
           return [MULTI_MODE, RANGE_MODE, SIGN_MODE].indexOf(value) > -1;
         }
       },
 
-      beginDate: {
+      rangeBeginDate: {
         type: Array,
         default: function _default() {
           return [];
         }
       },
 
-      endDate: {
+      rangeEndDate: {
         type: Array,
         default: function _default() {
           return [];
@@ -235,7 +235,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
         default: false
       },
 
-      disabledDate: {
+      disabledDates: {
         type: Array,
         default: function _default() {
           return [];
@@ -277,7 +277,9 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
         month: 0,
         day: 0,
         today: [],
-        showYearPanel: false
+        showYearPanel: false,
+        beginDate: [],
+        endDate: []
       };
     },
 
@@ -362,9 +364,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
             this.day = parseInt(this.value[2]);
           }
         }
-        this.render(this.year, this.month);
+        this.render();
       },
-      render: function render(year, month) {
+      render: function render() {
+        var _this = this;
+
+        var year = this.year;
+        var month = this.month;
         var firstDayOfMonth = new Date(year, month, 1).getDay();
         var lastDateOfMonth = new Date(year, month + 1, 0).getDate();
         var lastDayOfLastMonth = new Date(year, month, 0).getDate();
@@ -391,9 +397,69 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
               temp[line].push(disabledDate);
               k++;
             }
-            console.log(temp[line]);
+          }
+          if (this.mode === RANGE_MODE) {
+            var options = (0, _assign2.default)({
+              day: i
+            }, this._getLunarInfo(this.year, this.month + 1, i), this._getEvents(this.year, this.month + 1, i));
+            var beginDate = this.beginDate;
+            var endDate = this.endDate;
+            if (beginDate.length) {
+              var beginTime = Number(new Date(beginDate[0], beginDate[1], beginDate[2]));
+              var endTime = Number(new Date(endDate[0], endDate[1], endDate[2]));
+              var stepTime = Number(new Date(this.year, this.month, i));
+              if (beginTime <= stepTime && endTime >= stepTime) {
+                options.selected = true;
+              }
+            }
+            var rangeBeginDate = this.rangeBeginDate;
+            if (rangeBeginDate.length) {
+              var _beginTime = Number(new Date(parseInt(rangeBeginDate[0]), parseInt(rangeBeginDate[1]) - 1, parseInt(rangeBeginDate[2])));
+              if (_beginTime > Number(new Date(this.year, this.month, i))) options.disabled = true;
+            }
+            var rangeEndDate = this.rangeEndDate;
+            if (rangeEndDate.length) {
+              var _endTime = Number(new Date(parseInt(rangeEndDate[0]), parseInt(rangeEndDate[1]) - 1, parseInt(rangeEndDate[2])));
+              if (_endTime < Number(new Date(this.year, this.month, i))) options.disabled = true;
+            }
+            var disabledDates = this.disabledDates;
+            if (disabledDates.length) {
+              if (disabledDates.filter(function (v) {
+                return _this.year === v[0] && _this.month === v[1] - 1 && i === v[2];
+              }).length) {
+                options.disabled = true;
+              }
+            }
+            temp[line].push(options);
+          }
+
+          if (day === 6 && i < lastDateOfMonth) {
+            line++;
+          } else if (i === lastDateOfMonth) {
+            var _k = 1;
+            for (var d = day; d < 6; d++) {
+              temp[line].push((0, _assign2.default)({
+                day: _k,
+                disabled: true
+              }, this._getLunarInfo(this.nextYear, this._getNextMonth(true), _k), this._getEvents(this.nextYear, this._getNextMonth(true), _k)));
+              _k++;
+            }
+            nextMonthPushDays = _k;
           }
         }
+        if (line <= 5 && nextMonthPushDays > 0) {
+          for (var _i = line + 1; _i <= 5; _i++) {
+            temp[_i] = [];
+            var start = nextMonthPushDays + (_i - line - 1) * 7;
+            for (var _d = start; _d <= start + 6; _d++) {
+              temp[_i].push((0, _assign2.default)({
+                day: _d,
+                disabled: true
+              }, this._getLunarInfo(this.nextYear, this._getNextMonth(true), _d), this._getEvents(this.nextYear, this._getNextMonth(true), _d)));
+            }
+          }
+        }
+        this.days = temp;
       },
       prev: function prev(e) {
         if (this.month === 0) {
@@ -427,27 +493,27 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
       selectYear: function selectYear(year) {
         this.showYearPanel = false;
         this.year = year;
-        this.render(this.year, this.month);
+        this.render();
         this.$emit(EVENT_SELECT_YEAR, year);
       },
       setToday: function setToday() {
-        var _this = this;
+        var _this2 = this;
 
         var now = new Date();
         this.year = now.getFullYear();
         this.month = now.getMonth();
         this.day = now.getDate();
-        this.render(this.year, this.month);
+        this.render();
 
         this.days.forEach(function (item) {
           var day = item.find(function (vv) {
-            return vv.day === _this.day && !vv.disabled;
+            return vv.day === _this2.day && !vv.disabled;
           });
           day && (day.selected = true);
         });
       },
       _emitSelectMonthEvent: function _emitSelectMonthEvent(eventType) {
-        this.render(this.year, this.month);
+        this.render();
         var currentMonth = this.month + 1;
         this.$emit(EVENT_SELECT_MONTH, currentMonth, this.year);
         this.$emit(eventType, currentMonth, this.year);
@@ -508,10 +574,10 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     },
     watch: {
       events: function events() {
-        var _this2 = this;
+        var _this3 = this;
 
         this.$nextTick(function () {
-          _this2.render(_this2.year, _this2.month);
+          _this3.render();
         });
       },
 
@@ -528,10 +594,10 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
       signedDates: {
         handler: function handler() {
-          var _this3 = this;
+          var _this4 = this;
 
           this.$nextTick(function () {
-            _this3.render(_this3.year, _this3.month);
+            _this4.render();
           });
         },
 
@@ -737,7 +803,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__);
 /* harmony namespace reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3164d400_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7b35d7bc_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__ = __webpack_require__(52);
 function injectStyle (ssrContext) {
   __webpack_require__(15)
 }
@@ -757,7 +823,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue___default.a,
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3164d400_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_7b35d7bc_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -778,7 +844,7 @@ var content = __webpack_require__(16);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(18)("351de790", content, true, {});
+var update = __webpack_require__(18)("bcbf74ca", content, true, {});
 
 /***/ }),
 /* 16 */
