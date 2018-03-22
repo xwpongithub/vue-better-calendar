@@ -1,6 +1,36 @@
 <template>
   <div class="vue-better-calendar">
-    aaa
+    <div class="calendar-body">
+
+      <div class="calendar-weeks">
+        <ul>
+          <li v-for="weekday in weeks" class="weekday">
+            <span>{{weekday}}</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="calendar-dates" :class="{'has-line': hasLine}">
+        <div class="date-row" v-for="(dates,k1) in days">
+           <ul>
+             <li ref="dayItem" :style="styleObj(date)" v-for="(date,k2) in dates" class="calendar-day" :class="getDateCls(date)">
+               <p class="text text-day" :style="{
+                 lineHeight: `${dayItemLineHeight}px`
+               }" :class="{'is-special-day': k2 === 0 || k2 === 6|| ((date.isLunarFestival || date.isGregorianFestival) && showLunar)}">
+                 {{date.day}}
+               </p>
+               <p v-if="showLunar" class="text text-fest-day" :class="{'is-lunar': date.isLunarFestival, 'is-gregorian': date.isGregorianFestival}">
+                 {{date.lunar}}
+               </p>
+               <p class="text text-custom-day" v-if="date.eventName">
+                 {{date.eventName.title}}
+               </p>
+             </li>
+           </ul>
+        </div>
+      </div>
+
+    </div>
   </div>
 </template>
 
@@ -70,10 +100,14 @@
           return []
         }
       },
+      hasLine: {
+        type: Boolean,
+        default: true
+      },
       // 是否显示农历
       showLunar: {
         type: Boolean,
-        default: false
+        default: true
       },
       // 自定义星期名称
       weeks: {
@@ -94,7 +128,13 @@
       events: {
         type: Object,
         default() {
-          return {}
+          return {
+            '2018-3-22': {
+              className: 'price',
+              title: '¥232',
+              styles: {}
+            }
+          }
         }
       }
     },
@@ -109,7 +149,9 @@
         today: [],
         showYearPanel: false,
         beginDate: [],
-        endDate: []
+        endDate: [],
+        dayItemMinHeight: 0,
+        dayItemLineHeight: 'initial'
       }
     },
     computed: {
@@ -193,7 +235,9 @@
             this.day = parseInt(this.value[2])
           }
         }
-        this.render()
+        this.$nextTick(() => {
+          this.render()
+        })
       },
       render() {
         let year = this.year
@@ -300,6 +344,33 @@
           }
         }
         this.days = temp
+        setTimeout(() => {
+          if (this.$refs.dayItem) {
+            this.dayItemMinHeight = this.$refs.dayItem[0].offsetWidth
+            if (!this.showLunar) {
+              this.dayItemLineHeight = this.$refs.dayItem[0].offsetWidth - 20
+            }
+          }
+        }, 20)
+      },
+      getDateCls(date) {
+        let dateCls = {
+          selected: date.selected,
+          disabled: date.disabled
+        }
+        if (date.eventName && date.eventName.className) {
+          dateCls[date.eventName.className] = date.eventName.className
+        }
+        return dateCls
+      },
+      styleObj(date) {
+        let style = {
+          minHeight: `${this.dayItemMinHeight}px`
+        }
+        if (date.eventName && date.eventName.styles) {
+          style = Object.assign({}, style, date.eventName.styles)
+        }
+        return style
       },
       // 上月
       prev(e) {
@@ -405,8 +476,9 @@
       _getEvents(year, month, day) {
         if (!Object.keys(this.events).length) return
         let eventName = this.events[`${year}-${month}-${day}`]
-        let data = {}
+        let data
         if (eventName) {
+          data = {}
           data.eventName = eventName
         }
         return data
@@ -440,5 +512,126 @@
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
-
+  .vue-better-calendar
+    min-width:300px
+    font-family: "PingFang SC","Hiragino Sans GB","STHeiti","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif
+    .calendar-body
+      .calendar-weeks
+        ul
+          display:flex
+          width:100%
+          overflow:hidden
+          .weekday
+            flex:1
+            box-sizing:border-box
+            font-family:inherit
+            text-align:center
+            font-size:14px
+            padding:15px
+      .calendar-dates
+        position: relative
+        &.has-line
+          &::before, &::after
+            content: ""
+            display: block
+            position: absolute
+            transform-origin: 0 0
+          &::before
+            border-left: 1px solid #ccc
+            top: 0
+            left: 0
+            height: 100%
+            transform-origin: left 0
+          &::after
+            border-bottom: 1PX solid #ccc
+            left: 0
+            bottom: 0
+            width: 100%
+            transform-origin: 0 bottom
+          @media (min-resolution: 2dppx)
+            &::before,&::after
+              transform: scale(.5) translateZ(0)
+            &::before
+              height:200%
+            &::after
+              width:200%
+          @media (min-resolution: 3dppx)
+            &::before,&::after
+              transform: scale(.333) translateZ(0)
+            &::before
+              height:300%
+            &::after
+              width:300%
+          .date-row
+            ul
+              .calendar-day
+                position: relative
+                &::before, &::after
+                  content: ""
+                  display: block
+                  position: absolute
+                  transform-origin: 0 0
+                &::before
+                  border-top: 1px solid #ccc
+                  left: 0
+                  top: 0
+                  width: 100%
+                  transform-origin: 0 top
+                &::after
+                  border-right: 1px solid #ccc
+                  top: 0
+                  right: 0
+                  height: 100%
+                  transform-origin: right 0
+                @media (min-resolution: 2dppx)
+                  &::before,&::after
+                    transform: scale(.5) translateZ(0)
+                  &::before
+                    width:200%
+                  &::after
+                    height:200%
+                @media (min-resolution: 3dppx)
+                  &::before,&::after
+                    transform: scale(.333) translateZ(0)
+                  &::before
+                    width:300%
+                  &::after
+                    height:300%
+        .date-row
+          ul
+            display:flex
+            width:100%
+            overflow:hidden
+            .calendar-day
+              flex: 1
+              box-sizing:border-box
+              font-family:inherit
+              text-align:center
+              padding:10px 5px
+              &.disabled
+                color:#ccc
+                .text
+                  &.text-day
+                    &.is-special-day
+                      color: #ccc
+                  &.text-fest-day
+                    &.is-lunar,&.is-gregorian
+                      color: #ccc
+              .text
+                display: -webkit-box
+                overflow: hidden
+                text-overflow: ellipsis
+                word-wrap: break-word
+                white-space: normal !important
+                -webkit-line-clamp: 1
+                -webkit-box-orient: vertical
+                line-height:1.25
+                &.text-custom-day,&.text-fest-day
+                  font-size:11px
+                &.text-day
+                  &.is-special-day
+                    color: #ff0000
+                &.text-fest-day
+                  &.is-lunar,&.is-gregorian
+                    color: #09cd2c
 </style>
