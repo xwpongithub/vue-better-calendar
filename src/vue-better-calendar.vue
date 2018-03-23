@@ -14,7 +14,7 @@
           </svg>
         </div>
 
-        <div class="calendar-ctl-month">
+        <div class="calendar-ctl-month" @click.stop="changeYear">
           <div class="month">
             <div class="select-month-panel" :style="{top: `-${month * 20}px`}">
               <ul>
@@ -70,6 +70,14 @@
       </div>
     </div>
 
+    <transition name="panel-show">
+      <div class="calendar-year-panel" v-show="showYearPanel">
+        <div class="item-year" v-for="y in years" @click.stop="selectYear(y)" :class="{active: y === year}">
+          <span>{{y}}</span>
+        </div>
+      </div>
+    </transition>
+
   </div>
 </template>
 
@@ -80,13 +88,18 @@
   const COMPONENT_NAME = 'vue-better-calendar'
 
   const MULTI_MODE = 'multi'
+  // 范围选择模式
   const RANGE_MODE = 'range'
+  // 签到模式
   const SIGN_MODE = 'sign'
 
   const EVENT_SELECT_YEAR = 'select-year'
   const EVENT_SELECT_MONTH = 'select-month'
+  const EVENT_SELECT_RANGE_DATE = 'select-range-date'
   const EVENT_NEXT = 'next'
   const EVENT_PREV = 'prev'
+
+  const EVENT_RESET_SELECT_RANGE_DATE = 'reset-select-range-date'
 
   export default {
     name: COMPONENT_NAME,
@@ -130,7 +143,7 @@
       // 是否小于10补0
       isZeroPad: {
         type: Boolean,
-        default: false
+        default: true
       },
       // 屏蔽的日期
       disabledDates: {
@@ -402,7 +415,43 @@
       },
       // 选中日期
       selectDate(row, col) {
-        console.log(row, col)
+        if (this.mode === RANGE_MODE) {
+          if (!this.beginDate.length || this.endDateTemp) {
+            this.beginDate = [this.year, this.month, this.days[row][col].day]
+            this.beginDateTemp = this.beginDate
+            this.endDate = [this.year, this.month, this.days[row][col].day]
+            this.endDateTemp = 0
+          } else {
+            this.endDate = [this.year, this.month, this.days[row][col].day]
+            this.endDateTemp = 1
+            // 判断结束日期小于开始日期则自动颠倒过来
+            if (+new Date(this.endDate[0], this.endDate[1], this.endDate[2]) <
+              +new Date(this.beginDate[0], this.beginDate[1], this.beginDate[2])) {
+              this.beginDate = this.endDate
+              this.endDate = this.beginDateTemp
+            }
+            // 小于10左边打补丁
+            let begin = []
+            let end = []
+            if (this.isZeroPad) {
+              this.beginDate.forEach((item, i) => {
+                i === 1 && (item += 1)
+                begin.push(String(pad(item)))
+              })
+              this.endDate.forEach((item, i) => {
+                i === 1 && (item += 1)
+                end.push(String(pad(item)))
+              })
+            } else {
+              begin = this.beginDate
+              end = this.endDate
+            }
+            console.log(begin)
+            console.log(end)
+            this.$emit(EVENT_SELECT_RANGE_DATE, begin, end)
+          }
+          this.render()
+        }
       },
       getDateCls(date) {
         let dateCls = {
@@ -471,6 +520,13 @@
           let day = item.find(vv => vv.day === this.day && !vv.disabled)
           day && (day.selected = true)
         })
+      },
+      // 取消选择
+      resetRangDate() {
+        this.beginDate = []
+        this.endDate = []
+        this.$emit(EVENT_RESET_SELECT_RANGE_DATE)
+        this.render()
       },
       _emitSelectMonthEvent(eventType) {
         this.render()
@@ -564,6 +620,7 @@
 
 <style lang="stylus" rel="stylesheet/stylus">
   .vue-better-calendar
+    position: relative
     min-width:300px
     font-family: "PingFang SC","Hiragino Sans GB","STHeiti","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif
     .calendar-header
@@ -720,6 +777,15 @@
                   &.text-fest-day
                     &.is-lunar,&.is-gregorian
                       color: #ccc
+              &.selected
+                .text
+                  &.text-day
+                    border-radius:10px
+                    background-color: #5e7a88
+                    color:#fff
+                    &.is-special-day
+                      background-color: #ff0000
+                      color: #fff
               .text
                 display: -webkit-box
                 overflow: hidden
@@ -737,4 +803,34 @@
                 &.text-fest-day
                   &.is-lunar,&.is-gregorian
                     color: #09cd2c
+    .calendar-year-panel
+      position: absolute
+      display: flex
+      justify-content: center
+      align-items: center
+      flex-wrap:wrap
+      overflow: auto
+      left:0
+      right:0
+      top:44px
+      bottom:0
+      background-color: #fff
+      transform:translateY(0)
+      .item-year
+        margin:0 5px
+        width:60px
+        line-height: 30px
+        border-radius: 20px
+        text-align:center
+        border:1px solid #fbfbfb
+        color:#999
+        &.active
+          border:1px solid #5e7a88
+          background-color:#5e7a88
+          color:#fff
+      &.panel-show-enter,&.panel-show-leave-to
+        opacity:0
+        transform:translateY(-10px)
+      &.panel-show-enter-active,&.panel-show-leave-active
+        transition: all .5s cubic-bezier(0.075, 0.82, 0.165, 1)
 </style>
