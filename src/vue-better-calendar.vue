@@ -392,9 +392,10 @@
         this.days = temp
         setTimeout(() => {
           if (this.$refs.dayItem) {
-            this.dayItemMinHeight = this.$refs.dayItem[0].offsetWidth
+            const dayItemWidth = this.$refs.dayItem[0].offsetWidth
+            this.dayItemMinHeight = dayItemWidth || 0
             if (!this.showLunar) {
-              this.dayItemLineHeight = this.$refs.dayItem[0].offsetWidth - 20
+              this.dayItemLineHeight = dayItemWidth - 20
             }
           }
         }, 20)
