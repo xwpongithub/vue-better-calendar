@@ -1,7 +1,46 @@
 <template>
   <div class="vue-better-calendar">
-    <div class="calendar-body">
 
+    <div class="calendar-header">
+      <div class="calendar-ctl">
+
+        <div class="calendar-btn calendar-btn-prev" @click.stop="prev">
+          <svg width="20" height="20" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <g class="transform-group">
+              <g transform="scale(0.015625, 0.015625)">
+                <path d="M671.968 912c-12.288 0-24.576-4.672-33.952-14.048L286.048 545.984c-18.752-18.72-18.752-49.12 0-67.872l351.968-352c18.752-18.752 49.12-18.752 67.872 0 18.752 18.72 18.752 49.12 0 67.872l-318.016 318.048 318.016 318.016c18.752 18.752 18.752 49.12 0 67.872C696.544 907.328 684.256 912 671.968 912z" :fill="ctlColor"></path>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <div class="calendar-ctl-month">
+          <div class="month">
+            <div class="select-month-panel" :style="{top: `-${month * 20}px`}">
+              <ul>
+                <li class="item" v-for="m in months">{{m}}</li>
+              </ul>
+            </div>
+          </div>
+          <div class="year">
+            <span>{{year}}</span>
+          </div>
+        </div>
+
+        <div class="calendar-btn calendar-btn-next" @click.stop="next">
+          <svg width="20" height="20" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <g class="transform-group">
+              <g transform="scale(0.015625, 0.015625)">
+                <path d="M761.056 532.128c0.512-0.992 1.344-1.824 1.792-2.848 8.8-18.304 5.92-40.704-9.664-55.424L399.936 139.744c-19.264-18.208-49.632-17.344-67.872 1.888-18.208 19.264-17.376 49.632 1.888 67.872l316.96 299.84-315.712 304.288c-19.072 18.4-19.648 48.768-1.248 67.872 9.408 9.792 21.984 14.688 34.56 14.688 12 0 24-4.48 33.312-13.44l350.048-337.376c0.672-0.672 0.928-1.6 1.6-2.304 0.512-0.48 1.056-0.832 1.568-1.344C757.76 538.88 759.2 535.392 761.056 532.128z" :fill="ctlColor"></path>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="calendar-body">
       <div class="calendar-weeks">
         <ul>
           <li v-for="weekday in weeks" class="weekday">
@@ -11,12 +50,11 @@
       </div>
 
       <div class="calendar-dates" :class="{'has-line': hasLine}">
+
         <div class="date-row" v-for="(dates,k1) in days">
            <ul>
-             <li ref="dayItem" :style="styleObj(date)" v-for="(date,k2) in dates" class="calendar-day" :class="getDateCls(date)">
-               <p class="text text-day" :style="{
-                 lineHeight: `${dayItemLineHeight}px`
-               }" :class="{'is-special-day': k2 === 0 || k2 === 6|| ((date.isLunarFestival || date.isGregorianFestival) && showLunar)}">
+             <li @click.stop="selectDate(k1, k2)" ref="dayItem" :style="styleObj(date)" v-for="(date,k2) in dates" class="calendar-day" :class="getDateCls(date)">
+               <p class="text text-day" :style="{lineHeight: `${dayItemLineHeight}px`}" :class="{'is-special-day': k2 === 0 || k2 === 6|| ((date.isLunarFestival || date.isGregorianFestival) && showLunar)}">
                  {{date.day}}
                </p>
                <p v-if="showLunar" class="text text-fest-day" :class="{'is-lunar': date.isLunarFestival, 'is-gregorian': date.isGregorianFestival}">
@@ -28,15 +66,16 @@
              </li>
            </ul>
         </div>
-      </div>
 
+      </div>
     </div>
+
   </div>
 </template>
 
 <script>
   import * as utils from './utils/date-utils'
-  import {pad} from './utils/utils'
+  import {pad, isValidColor} from './utils/utils'
 
   const COMPONENT_NAME = 'vue-better-calendar'
 
@@ -135,6 +174,13 @@
               styles: {}
             }
           }
+        }
+      },
+      ctlColor: {
+        type: String,
+        default: '#5e7a88',
+        validator(value) {
+          return isValidColor(value)
         }
       }
     },
@@ -353,6 +399,10 @@
           }
         }, 20)
       },
+      // 选中日期
+      selectDate(row, col) {
+        console.log(row, col)
+      },
       getDateCls(date) {
         let dateCls = {
           selected: date.selected,
@@ -373,7 +423,7 @@
         return style
       },
       // 上月
-      prev(e) {
+      prev() {
         if (this.month === 0) {
           this.month = 11
           this.year = parseInt(this.year) - 1
@@ -515,6 +565,58 @@
   .vue-better-calendar
     min-width:300px
     font-family: "PingFang SC","Hiragino Sans GB","STHeiti","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif
+    .calendar-header
+      .calendar-ctl
+        display:flex
+        padding:6px 0
+        .calendar-btn
+          position: relative
+          margin-top:6px
+          flex:0 0 20px
+          width:20px
+          vertical-align:middle
+          &::after
+            content:''
+            display:block
+            position: absolute
+            pointer-events:none
+            left:-10px
+            top:-10px
+            z-index:15
+            width:40px
+            height:40px
+          &.calendar-btn-prev
+            text-align:left
+          &.calendar-btn-next
+            text-align:right
+        .calendar-ctl-month
+          flex:1
+          .month
+            position: relative
+            margin:0 auto
+            width:100px
+            height:20px
+            overflow:hidden
+            text-align:center
+            color:#5e7a88
+            .select-month-panel
+              position: absolute
+              left:0
+              top:0
+              height:240px
+              width:100%
+              transition:top .5s cubic-bezier(0.075, 0.82, 0.165, 1)
+              .item
+                overflow:hidden
+                height:20px
+                width:100%
+                text-align:center
+                font-size:14px
+          .year
+            text-align:center
+            font-size:10px
+            line-height: 1
+            color:#999
     .calendar-body
       .calendar-weeks
         ul
