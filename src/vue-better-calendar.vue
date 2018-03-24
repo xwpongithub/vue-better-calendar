@@ -96,6 +96,7 @@
   const EVENT_SELECT_YEAR = 'select-year'
   const EVENT_SELECT_MONTH = 'select-month'
   const EVENT_SELECT_RANGE_DATE = 'select-range-date'
+  const EVENT_SELECT_MULTI_DATE = 'select-multi-date'
   const EVENT_NEXT = 'next'
   const EVENT_PREV = 'prev'
 
@@ -120,14 +121,14 @@
         }
       },
       // 开始选择日期
-      rangeBeginDate: {
+      limitBeginDate: {
         type: Array,
         default() {
           return []
         }
       },
       // 结束选择日期
-      rangeEndDate: {
+      limitEndDate: {
         type: Array,
         default() {
           return []
@@ -322,6 +323,8 @@
             for (let j = 0; j < firstDayOfMonth; j++) {
               let disabledDate = Object.assign({
                 day: k,
+                year: this.year,
+                month: this._getPrevMonth(true),
                 disabled: true
               },
               this._getLunarInfo(this.prevYear, this._getPrevMonth(true), k),
@@ -333,28 +336,20 @@
           if (this.mode === RANGE_MODE) {
             let options = Object.assign(
               {
-                day: i
+                day: i,
+                year: this.year,
+                month: this.month + 1
               },
               this._getLunarInfo(this.year, this.month + 1, i),
               this._getEvents(this.year, this.month + 1, i))
-            let beginDate = this.beginDate
-            let endDate = this.endDate
-            if (beginDate.length) {
-              let beginTime = Number(new Date(beginDate[0], beginDate[1], beginDate[2]))
-              let endTime = Number(new Date(endDate[0], endDate[1], endDate[2]))
-              let stepTime = Number(new Date(this.year, this.month, i))
-              if (beginTime <= stepTime && endTime >= stepTime) {
-                options.selected = true
-              }
-            }
-            let rangeBeginDate = this.rangeBeginDate
-            if (rangeBeginDate.length) {
-              let beginTime = Number(new Date(parseInt(rangeBeginDate[0]), parseInt(rangeBeginDate[1]) - 1, parseInt(rangeBeginDate[2])))
+            let limitBeginDate = this.limitBeginDate
+            if (limitBeginDate.length) {
+              let beginTime = Number(new Date(parseInt(limitBeginDate[0]), parseInt(limitBeginDate[1]) - 1, parseInt(limitBeginDate[2])))
               if (beginTime > Number(new Date(this.year, this.month, i))) options.disabled = true
             }
-            let rangeEndDate = this.rangeEndDate
-            if (rangeEndDate.length) {
-              let endTime = Number(new Date(parseInt(rangeEndDate[0]), parseInt(rangeEndDate[1]) - 1, parseInt(rangeEndDate[2])))
+            let limitEndDate = this.limitEndDate
+            if (limitEndDate.length) {
+              let endTime = Number(new Date(parseInt(limitEndDate[0]), parseInt(limitEndDate[1]) - 1, parseInt(limitEndDate[2])))
               if (endTime < Number(new Date(this.year, this.month, i))) options.disabled = true
             }
             let disabledDates = this.disabledDates
@@ -363,6 +358,59 @@
                 return this.year === v[0] && this.month === v[1] - 1 && i === v[2]
               }).length) {
                 options.disabled = true
+              }
+            }
+            let beginDate = this.beginDate
+            let endDate = this.endDate
+            if (beginDate.length) {
+              let beginTime = Number(new Date(beginDate[0], beginDate[1], beginDate[2]))
+              let endTime = Number(new Date(endDate[0], endDate[1], endDate[2]))
+              let stepTime = Number(new Date(this.year, this.month, i))
+              if (beginTime <= stepTime && endTime >= stepTime && !options.disabled) {
+                options.selected = true
+              }
+            }
+            temp[line].push(options)
+          } else if (this.mode === MULTI_MODE) {
+            let options
+            // 判断是否选中
+            if (this.value.filter(v => {
+              return this.year === v[0] && this.month === v[1] - 1 && i === v[2]
+            }).length) {
+              options = Object.assign({
+                day: i,
+                year: this.year,
+                month: this.month + 1,
+                selected: true
+              },
+              this._getLunarInfo(this.year, this.month + 1, i),
+              this._getEvents(this.year, this.month + 1, i))
+            } else {
+              options = Object.assign({
+                day: i,
+                year: this.year,
+                month: this.month + 1,
+                selected: false
+                },
+                this._getLunarInfo(this.year, this.month + 1, i),
+                this._getEvents(this.year, this.month + 1, i))
+              const limitBeginDate = this.limitBeginDate
+              if (limitBeginDate.length) {
+                let beginTime = Number(new Date(parseInt(limitBeginDate[0]), parseInt(limitBeginDate[1]) - 1, parseInt(limitBeginDate[2])))
+                if (beginTime > Number(new Date(this.year, this.month, i))) options.disabled = true
+              }
+              const limitEndDate = this.limitEndDate
+              if (limitEndDate.length) {
+                let endTime = Number(new Date(parseInt(limitEndDate[0]), parseInt(limitEndDate[1]) - 1, parseInt(limitEndDate[2])))
+                if (endTime < Number(new Date(this.year, this.month, i))) options.disabled = true
+              }
+              let disabledDates = this.disabledDates
+              if (disabledDates.length) {
+                if (disabledDates.filter(v => {
+                  return this.year === v[0] && this.month === v[1] - 1 && i === v[2]
+                }).length) {
+                  options.disabled = true
+                }
               }
             }
             temp[line].push(options)
@@ -376,6 +424,8 @@
               temp[line].push(Object.assign(
                 {
                   day: k,
+                  year: this.year,
+                  month: this._getNextMonth(true),
                   disabled: true
                 },
                 this._getLunarInfo(this.nextYear, this._getNextMonth(true), k),
@@ -394,6 +444,8 @@
             for (let d = start; d <= start + 6; d++) {
               temp[i].push(Object.assign({
                   day: d,
+                  year: this.year,
+                  month: this._getNextMonth(true),
                   disabled: true
                 },
                 this._getLunarInfo(this.nextYear, this._getNextMonth(true), d),
@@ -415,8 +467,9 @@
       },
       // 选中日期
       selectDate(row, col) {
+        if (this.days[row][col].disabled) return
         if (this.mode === RANGE_MODE) {
-          if (!this.beginDate.length || this.endDateTemp) {
+          if (this.beginDate.length === 0 || this.endDateTemp !== 0) {
             this.beginDate = [this.year, this.month, this.days[row][col].day]
             this.beginDateTemp = this.beginDate
             this.endDate = [this.year, this.month, this.days[row][col].day]
@@ -446,11 +499,51 @@
               begin = this.beginDate
               end = this.endDate
             }
-            console.log(begin)
-            console.log(end)
-            this.$emit(EVENT_SELECT_RANGE_DATE, begin, end)
+            let beginStamp = +new Date(`${begin[0]}/${begin[1]}/${begin[2]}`)
+            let endStamp = +new Date(`${end[0]}/${end[1]}/${end[2]}`)
+            let selectedDates = []
+            this.days.forEach(row => {
+              row.forEach(col => {
+                let dayStamp = +new Date(`${col.year}/${col.month}/${col.day}`)
+                if (!col.disabled) {
+                  if (dayStamp >= beginStamp && dayStamp <= endStamp) {
+                    let tempMonth = this.isZeroPad ? pad(col.month) : col.month
+                    let tempDay = this.isZeroPad ? pad(col.day) : col.day
+                    selectedDates.push([String(col.year), String(tempMonth), String(tempDay)])
+                  }
+                }
+              })
+            })
+            this.$emit(EVENT_SELECT_RANGE_DATE, selectedDates)
           }
           this.render()
+        } else if (this.mode === MULTI_MODE) {
+          // 如果已经选过则过滤掉
+          let filterDay = this.multiDays.filter(v => {
+            return this.year === v[0] && this.month === v[1] - 1 && this.days[row][col].day === v[2]
+          })
+          if (filterDay.length) {
+            this.multiDays = this.multiDays.filter(v => {
+              return this.year !== v[0] || this.month !== v[1] - 1 || this.days[row][col].day !== v[2]
+            })
+          } else {
+            this.multiDays.push([this.year, this.month + 1, this.days[row][col].day])
+          }
+          this.days[row][col].selected = !this.days[row][col].selected
+          this.multiDays = this.multiDays.sort((d1, d2) => {
+            return +new Date(d1[0], d1[1] - 1, d1[2]) > +new Date(d2[0], d2[1] - 1, d2[2])
+          })
+          let selectedMultiDays = []
+          this.multiDays.forEach((date) => {
+            let tempMonth = date[1]
+            let tempDay = date[2]
+            if (this.isZeroPad) {
+              tempMonth = pad(tempMonth)
+              tempDay = pad(tempDay)
+            }
+            selectedMultiDays.push([String(date[0]), String(tempMonth), String(tempDay)])
+          })
+          this.$emit(EVENT_SELECT_MULTI_DATE, selectedMultiDays)
         }
       },
       getDateCls(date) {

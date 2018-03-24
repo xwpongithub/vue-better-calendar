@@ -1,16 +1,30 @@
 <template>
   <div id="app">
-    <vue-better-calendar ref="calendar"/>
+    <vue-better-calendar ref="calendar" mode="multi"/>
+    <!--<vue-better-calendar :disabledDates="disabledDates" ref="calendar" mode="multi" :limitBeginDate="[2018, 3, 22]" :limitEndDate="[2018, 3, 25]"/>-->
+    <!--<vue-better-calendar :disabledDates="disabledDates" ref="calendar" :limitBeginDate="[2018, 3, 22]" :limitEndDate="[2018, 3, 25]"/>-->
+    <!--<vue-better-calendar ref="calendar" :limitBeginDate="[2018, 3, 22]" :limitEndDate="[2018, 3, 25]"/>-->
+    <!--<vue-better-calendar ref="calendar" v-model="range"/>-->
     <button @click="resetChoose">取消选择</button>
+    <button @click="backToToday">回到今天</button>
   </div>
 </template>
 
 <script>
   export default {
     name: 'app',
+    data() {
+      return {
+        range: [[2017, 12, 1], [2019, 2, 16]],
+        disabledDates: [[2018, 3, 23], [2018, 3, 24]]
+      }
+    },
     methods: {
       resetChoose() {
         this.$refs.calendar.resetRangDate()
+      },
+      backToToday() {
+        this.$refs.calendar.setToday()
       }
     }
   }
