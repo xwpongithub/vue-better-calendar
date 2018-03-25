@@ -51,7 +51,7 @@
 
       <div class="calendar-dates" :class="{'has-line': hasLine}">
 
-        <div class="date-row" v-for="(dates,k1) in days">
+        <div class="date-row" v-for="(dates, k1) in days">
            <ul>
              <li @click.stop="selectDate(k1, k2)" ref="dayItem" :style="styleObj(date)" v-for="(date,k2) in dates" class="calendar-day" :class="getDateCls(date)">
                <p class="text text-day" :style="{lineHeight: `${dayItemLineHeight}px`}" :class="{'is-special-day': k2 === 0 || k2 === 6|| ((date.isLunarFestival || date.isGregorianFestival) && showLunar)}">
@@ -97,6 +97,8 @@
   const EVENT_SELECT_MONTH = 'select-month'
   const EVENT_SELECT_RANGE_DATE = 'select-range-date'
   const EVENT_SELECT_MULTI_DATE = 'select-multi-date'
+  const EVENT_CLICK_DISABLE_DATE = 'click-disable-date'
+  const EVENT_SELECT_SIGN_DATE = 'select-sign-date'
   const EVENT_NEXT = 'next'
   const EVENT_PREV = 'prev'
 
@@ -119,6 +121,22 @@
         validator(value) {
           return [MULTI_MODE, RANGE_MODE, SIGN_MODE].indexOf(value) > -1
         }
+      },
+      notSignInOtherMonthsTxt: {
+        type: String,
+        default: '不能在本月外进行签到'
+      },
+      notSignInOtherDaysTxt: {
+        type: String,
+        default: '签到只能在当天进行'
+      },
+      alreadySignTxt: {
+        type: String,
+        default: '本日已经进行过签到'
+      },
+      signSuccessTxt: {
+        type: String,
+        default: '签到成功'
       },
       // 开始选择日期
       limitBeginDate: {
@@ -305,6 +323,7 @@
         let firstDayOfMonth = new Date(year, month, 1).getDay() // 前一个月的第一天是星期几
         let lastDateOfMonth = new Date(year, month + 1, 0).getDate() // 当月最后一天
         let lastDayOfLastMonth = new Date(year, month, 0).getDate() // 前一个月的最后一天
+        const now = new Date()
 
         let selectedDates = this.value
         let i
@@ -414,6 +433,41 @@
               }
             }
             temp[line].push(options)
+          } else if (this.mode === SIGN_MODE) {
+            let options = Object.assign({
+                day: i,
+                year: this.year,
+                month: this.month + 1,
+                selected: false,
+                disabled: false
+              },
+              this._getLunarInfo(this.year, this.month + 1, i),
+              this._getEvents(this.year, this.month + 1, i))
+            let everyDay = +new Date(`${this.year}/${this.month + 1}/${i}`)
+            let today = +new Date(`${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`)
+            if (everyDay === today) options.isToday = true
+            if (this._checkInDates(everyDay) > -1) {
+              options.selected = true
+            }
+            let limitBeginDate = this.limitBeginDate
+            if (limitBeginDate.length) {
+              let beginTime = Number(new Date(parseInt(limitBeginDate[0]), parseInt(limitBeginDate[1]) - 1, parseInt(limitBeginDate[2])))
+              if (beginTime > Number(new Date(this.year, this.month, i))) options.disabled = true
+            }
+            let limitEndDate = this.limitEndDate
+            if (limitEndDate.length) {
+              let endTime = Number(new Date(parseInt(limitEndDate[0]), parseInt(limitEndDate[1]) - 1, parseInt(limitEndDate[2])))
+              if (endTime < Number(new Date(this.year, this.month, i))) options.disabled = true
+            }
+            let disabledDates = this.disabledDates
+            if (disabledDates.length) {
+              if (disabledDates.filter(v => {
+                  return this.year === v[0] && this.month === v[1] - 1 && i === v[2]
+                }).length) {
+                options.disabled = true
+              }
+            }
+            temp[line].push(options)
           }
           // 到周六换行
           if (day === 6 && i < lastDateOfMonth) {
@@ -467,7 +521,14 @@
       },
       // 选中日期
       selectDate(row, col) {
-        if (this.days[row][col].disabled) return
+        let now = new Date()
+        let selectedDay = this.days[row][col]
+        if (selectedDay.disabled) {
+          let tempMonth = this.isZeroPad ? pad(selectedDay.month) : selectedDay.month
+          let tempDay = this.isZeroPad ? pad(selectedDay.day) : selectedDay.day
+          this.$emit(EVENT_CLICK_DISABLE_DATE, [String(this.year), String(tempMonth), String(tempDay)], this.mode)
+          return
+        }
         if (this.mode === RANGE_MODE) {
           if (this.beginDate.length === 0 || this.endDateTemp !== 0) {
             this.beginDate = [this.year, this.month, this.days[row][col].day]
@@ -544,10 +605,45 @@
             selectedMultiDays.push([String(date[0]), String(tempMonth), String(tempDay)])
           })
           this.$emit(EVENT_SELECT_MULTI_DATE, selectedMultiDays)
+        } else if (this.mode === SIGN_MODE) {
+          let signedDates = this.signedDates.slice()
+          const currentMonth = now.getMonth() + 1
+          if (this.month + 1 !== currentMonth) {
+            this.$emit(EVENT_SELECT_SIGN_DATE, {
+              status: false,
+              msg: this.notSignInOtherMonthsTxt,
+              signedDates
+            })
+            return
+          }
+          let selectedDay = +new Date(`${this.year}/${this.month + 1}/${this.days[row][col].day}`)
+          if (selectedDay !== +new Date(`${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`)) {
+            this.$emit(EVENT_SELECT_SIGN_DATE, {
+              status: false,
+              msg: this.notSignInOtherDaysTxt,
+              signedDates
+            })
+            return
+          }
+          if (this._checkInDates(selectedDay) < 0) {
+            signedDates.push(`${this.year}-${pad(this.month + 1)}-${pad(this.days[row][col].day)}`)
+            this.$emit(EVENT_SELECT_SIGN_DATE, {
+              status: true,
+              msg: this.signSuccessTxt,
+              signedDates
+            })
+          } else {
+            this.$emit(EVENT_SELECT_SIGN_DATE, {
+              status: false,
+              msg: this.alreadySignTxt,
+              signedDates
+            })
+          }
         }
       },
       getDateCls(date) {
         let dateCls = {
+          'is-today': date.isToday,
           selected: date.selected,
           disabled: date.disabled
         }
@@ -620,6 +716,12 @@
         this.endDate = []
         this.$emit(EVENT_RESET_SELECT_RANGE_DATE)
         this.render()
+      },
+      _checkInDates(d) {
+        return this.signedDates.findIndex(date => {
+          let itemDay = date.replace(/-/g, '/')
+          return +new Date(itemDay) === d
+        })
       },
       _emitSelectMonthEvent(eventType) {
         this.render()
@@ -870,6 +972,9 @@
                   &.text-fest-day
                     &.is-lunar,&.is-gregorian
                       color: #ccc
+              &.is-today
+                background-color: #6098bf
+                color:#fff
               &.selected
                 .text
                   &.text-day

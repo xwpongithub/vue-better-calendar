@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <vue-better-calendar ref="calendar" mode="multi"/>
+    <!--<vue-better-calendar ref="calendar" mode="multi"/>-->
+    <vue-better-calendar ref="calendar" mode="sign" :signedDates="signedDates"/>
     <!--<vue-better-calendar :disabledDates="disabledDates" ref="calendar" mode="multi" :limitBeginDate="[2018, 3, 22]" :limitEndDate="[2018, 3, 25]"/>-->
     <!--<vue-better-calendar :disabledDates="disabledDates" ref="calendar" :limitBeginDate="[2018, 3, 22]" :limitEndDate="[2018, 3, 25]"/>-->
     <!--<vue-better-calendar ref="calendar" :limitBeginDate="[2018, 3, 22]" :limitEndDate="[2018, 3, 25]"/>-->
@@ -15,6 +16,7 @@
     name: 'app',
     data() {
       return {
+        signedDates: ['2018-03-01', '2018-03-05', '2018-03-24'],
         range: [[2017, 12, 1], [2019, 2, 16]],
         disabledDates: [[2018, 3, 23], [2018, 3, 24]]
       }
