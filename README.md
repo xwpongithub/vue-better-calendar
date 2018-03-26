@@ -23,5 +23,5 @@ Vue-better-calendar is a vue-based date plug-in that provides users with four mo
 
 ### Used as such in the component
 ```javascript
-  <vue-calendar></vue-calendar>
+  <vue-better-calendar></vue-better-calendar>
 ```
