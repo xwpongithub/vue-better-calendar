@@ -26,6 +26,15 @@ vue-better-calendar是一个基于vue的日期选择插件，它提供了四种�
   <vue-better-calendar></vue-better-calendar>
 ```
 
+### 直接连入页面使用
+```javascript
+  <script src="https://unpkg.com/vue@2.5.16/dist/vue.js"></script>
+  <script src="https://unpkg.com/vue-better-calendar@1.0.0/dist/vue-better-calendar.js"></script>
+```
+```html
+  <vue-better-calendar></vue-better-calendar>
+```
+
 ### 参数
 |名称|类型|默认值|说明|
 |:-:|:-:|:-:|:-:|
