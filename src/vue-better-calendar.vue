@@ -92,6 +92,8 @@
   const RANGE_MODE = 'range'
   // 签到模式
   const SIGN_MODE = 'sign'
+  // 单选模式
+  const SINGLE_MODE = 'single'
 
   const EVENT_SELECT_YEAR = 'select-year'
   const EVENT_SELECT_MONTH = 'select-month'
@@ -99,10 +101,10 @@
   const EVENT_SELECT_MULTI_DATE = 'select-multi-date'
   const EVENT_CLICK_DISABLE_DATE = 'click-disable-date'
   const EVENT_SELECT_SIGN_DATE = 'select-sign-date'
+  const EVENT_SELECT_SINGLE_DATE = 'select-single-date'
+  const EVENT_RESET_SELECT_RANGE_DATE = 'reset-select-range-date'
   const EVENT_NEXT = 'next'
   const EVENT_PREV = 'prev'
-
-  const EVENT_RESET_SELECT_RANGE_DATE = 'reset-select-range-date'
 
   export default {
     name: COMPONENT_NAME,
@@ -119,7 +121,7 @@
         type: String,
         default: RANGE_MODE,
         validator(value) {
-          return [MULTI_MODE, RANGE_MODE, SIGN_MODE].indexOf(value) > -1
+          return [MULTI_MODE, RANGE_MODE, SIGN_MODE, SINGLE_MODE].indexOf(value) > -1
         }
       },
       notSignInOtherMonthsTxt: {
@@ -224,7 +226,7 @@
         year: 0,
         month: 0,
         day: 0,
-        today: [],
+        defaultSingleSelectDay: [],
         showYearPanel: false,
         beginDate: [],
         endDate: [],
@@ -357,7 +359,8 @@
               {
                 day: i,
                 year: this.year,
-                month: this.month + 1
+                month: this.month + 1,
+                disabled: false
               },
               this._getLunarInfo(this.year, this.month + 1, i),
               this._getEvents(this.year, this.month + 1, i))
@@ -400,7 +403,8 @@
                 day: i,
                 year: this.year,
                 month: this.month + 1,
-                selected: true
+                selected: true,
+                disabled: false
               },
               this._getLunarInfo(this.year, this.month + 1, i),
               this._getEvents(this.year, this.month + 1, i))
@@ -409,10 +413,11 @@
                 day: i,
                 year: this.year,
                 month: this.month + 1,
-                selected: false
-                },
-                this._getLunarInfo(this.year, this.month + 1, i),
-                this._getEvents(this.year, this.month + 1, i))
+                selected: false,
+                disabled: false
+              },
+              this._getLunarInfo(this.year, this.month + 1, i),
+              this._getEvents(this.year, this.month + 1, i))
               const limitBeginDate = this.limitBeginDate
               if (limitBeginDate.length) {
                 let beginTime = Number(new Date(parseInt(limitBeginDate[0]), parseInt(limitBeginDate[1]) - 1, parseInt(limitBeginDate[2])))
@@ -468,6 +473,7 @@
               }
             }
             temp[line].push(options)
+          } else if (this.mode === SINGLE_MODE) {
           }
           // 到周六换行
           if (day === 6 && i < lastDateOfMonth) {
