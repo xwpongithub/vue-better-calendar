@@ -182,6 +182,10 @@
         type: Boolean,
         default: true
       },
+      showDisableDate: {
+        type: Boolean,
+        default: false
+      },
       // 自定义星期名称
       weeks: {
         type: Array,
@@ -354,8 +358,9 @@
               k++
             }
           }
+          let options
           if (this.mode === RANGE_MODE) {
-            let options = Object.assign(
+            options = Object.assign(
               {
                 day: i,
                 year: this.year,
@@ -394,7 +399,6 @@
             }
             temp[line].push(options)
           } else if (this.mode === MULTI_MODE) {
-            let options
             // 判断是否选中
             if (this.value.filter(v => {
               return this.year === v[0] && this.month === v[1] - 1 && i === v[2]
@@ -439,7 +443,7 @@
             }
             temp[line].push(options)
           } else if (this.mode === SIGN_MODE) {
-            let options = Object.assign({
+            options = Object.assign({
                 day: i,
                 year: this.year,
                 month: this.month + 1,
@@ -474,6 +478,41 @@
             }
             temp[line].push(options)
           } else if (this.mode === SINGLE_MODE) {
+            options = Object.assign({
+                day: i,
+                year: this.year,
+                month: this.month + 1,
+                selected: false,
+                disabled: false
+              },
+              this._getLunarInfo(this.year, this.month + 1, i),
+              this._getEvents(this.year, this.month + 1, i))
+            if (!selectedDates.length && now.getFullYear() === this.year && now.getMonth() + 1 === this.month + 1) {
+              options.selectd = true
+              this.defaultSingleSelectDay = [line, temp[line].length - 1]
+            } else if (selectedDates.length && this.year === Number(selectedDates[0]) && this.month + 1 === Number(selectedDates[1]) && i === Number(selectedDates[2])) {
+              options.selected = true
+              this.defaultSingleSelectDay = [line, temp[line].length - 1]
+            }
+            let limitBeginDate = this.limitBeginDate
+            if (limitBeginDate.length) {
+              let beginTime = Number(new Date(parseInt(limitBeginDate[0]), parseInt(limitBeginDate[1]) - 1, parseInt(limitBeginDate[2])))
+              if (beginTime > Number(new Date(this.year, this.month, i))) options.disabled = true
+            }
+            let limitEndDate = this.limitEndDate
+            if (limitEndDate.length) {
+              let endTime = Number(new Date(parseInt(limitEndDate[0]), parseInt(limitEndDate[1]) - 1, parseInt(limitEndDate[2])))
+              if (endTime < Number(new Date(this.year, this.month, i))) options.disabled = true
+            }
+            let disabledDates = this.disabledDates
+            if (disabledDates.length) {
+              if (disabledDates.filter(v => {
+                  return this.year === v[0] && this.month === v[1] - 1 && i === v[2]
+                }).length) {
+                options.disabled = true
+              }
+            }
+            temp[line].push(options)
           }
           // 到周六换行
           if (day === 6 && i < lastDateOfMonth) {
@@ -645,6 +684,21 @@
               signedDates
             })
           }
+        } else if (this.mode === SINGLE_MODE) {
+          // 取消上次选中
+          if (this.defaultSingleSelectDay.length) {
+            this.days.forEach(v => {
+              v.forEach(vv => {
+                vv.selected = false
+              })
+            })
+          }
+          // 设置当前选中天
+          this.days[row][col].selected = true
+          this.day = this.days[row][col].day
+          this.defaultSingleSelectDay = [row, col]
+          console.log([String(this.year), String(pad(this.month + 1)), String(pad(this.days[row][col].day))])
+          this.$emit(EVENT_SELECT_SINGLE_DATE, [String(this.year), String(pad(this.month + 1)), String(pad(this.days[row][col].day))])
         }
       },
       getDateCls(date) {
