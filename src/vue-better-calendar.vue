@@ -53,16 +53,29 @@
 
         <div class="date-row" v-for="(dates, k1) in days">
            <ul>
-             <li @click.stop="selectDate(k1, k2)" ref="dayItem" :style="styleObj(date)" v-for="(date,k2) in dates" class="calendar-day" :class="getDateCls(date)">
-               <p class="text text-day" :style="{lineHeight: `${dayItemLineHeight}px`}" :class="{'is-special-day': k2 === 0 || k2 === 6|| ((date.isLunarFestival || date.isGregorianFestival) && showLunar)}">
-                 {{date.day}}
-               </p>
-               <p v-if="showLunar" class="text text-fest-day" :class="{'is-lunar': date.isLunarFestival, 'is-gregorian': date.isGregorianFestival}">
-                 {{date.lunar}}
-               </p>
-               <p class="text text-custom-day" v-if="date.eventName">
-                 {{date.eventName.title}}
-               </p>
+             <li @click.stop="selectDate(k1, k2)" ref="dayItem" :style="styleObj(date)" v-for="(date,k2) in dates" class="calendar-day" :class="[{'is-weekend': k2 === 0 || k2 === 6}, getDateCls(date)]">
+               <template v-if="!date.disabled">
+                 <p class="text text-day" :style="{lineHeight: `${dayItemLineHeight}px`}" :class="{'is-special-day': k2 === 0 || k2 === 6|| ((date.isLunarFestival || date.isGregorianFestival) && showLunar)}">
+                   {{date.day}}
+                 </p>
+                 <p v-if="showLunar" class="text text-fest-day" :class="{'is-lunar': date.isLunarFestival, 'is-gregorian': date.isGregorianFestival}">
+                   {{date.lunar}}
+                 </p>
+                 <p class="text text-custom-day" v-if="date.eventName">
+                   {{date.eventName.title}}
+                 </p>
+               </template>
+               <template v-else-if="showDisableDate">
+                 <p class="text text-day" :style="{lineHeight: `${dayItemLineHeight}px`}" :class="{'is-special-day': k2 === 0 || k2 === 6|| ((date.isLunarFestival || date.isGregorianFestival) && showLunar)}">
+                   {{date.day}}
+                 </p>
+                 <p v-if="showLunar" class="text text-fest-day" :class="{'is-lunar': date.isLunarFestival, 'is-gregorian': date.isGregorianFestival}">
+                   {{date.lunar}}
+                 </p>
+                 <p class="text text-custom-day" v-if="date.eventName">
+                   {{date.eventName.title}}
+                 </p>
+               </template>
              </li>
            </ul>
         </div>
@@ -184,7 +197,7 @@
       },
       showDisableDate: {
         type: Boolean,
-        default: false
+        default: true
       },
       // 自定义星期名称
       weeks: {
@@ -205,13 +218,7 @@
       events: {
         type: Object,
         default() {
-          return {
-            '2018-3-22': {
-              className: 'price',
-              title: '¥232',
-              styles: {}
-            }
-          }
+          return {}
         }
       },
       ctlColor: {
@@ -697,7 +704,6 @@
           this.days[row][col].selected = true
           this.day = this.days[row][col].day
           this.defaultSingleSelectDay = [row, col]
-          console.log([String(this.year), String(pad(this.month + 1)), String(pad(this.days[row][col].day))])
           this.$emit(EVENT_SELECT_SINGLE_DATE, [String(this.year), String(pad(this.month + 1)), String(pad(this.days[row][col].day))])
         }
       },
