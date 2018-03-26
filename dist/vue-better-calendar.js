@@ -1127,7 +1127,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     };
   }
 
-  _vueBetterCalendar2.default.version = "0.0.8";
+  _vueBetterCalendar2.default.version = "0.0.9";
 
   _vueBetterCalendar2.default.install = function (Vue) {
     Vue.component(_vueBetterCalendar2.default.name, _vueBetterCalendar2.default);

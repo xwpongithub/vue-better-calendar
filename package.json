@@ -1,11 +1,12 @@
 {
   "name": "vue-better-calendar",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "A calendar component for vuejs.",
   "author": {
     "name": "Xiao Wenpeng",
     "email": "xwpjava@126.com"
   },
+  "main": "dist/vue-better-calendar.js",
   "bugs": {
     "url": "https://github.com/xwpongithub/vue-better-calendar/issues"
   },
