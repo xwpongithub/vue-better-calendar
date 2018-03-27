@@ -40,7 +40,7 @@ vue-better-calendar是一个基于vue的日期选择插件，它提供了四种�
 |:-:|:-:|:-:|:-:|
 |mode|String|multi|日期选择模式，支持四个有效值：multi 多选，range 范围选择，sign 签到，single 单选|
 |notSignInOtherMonthsTxt|String|不能在本月外进行签到|签到时点击本月外日期时的文本提示|
-|notSignInOtherDaysTxt|String|不签到只能在当天进行|签到时点击本月内非当天日期时的文本提示|
+|notSignInOtherDaysTxt|String|签到只能在当天进行|签到时点击本月内非当天日期时的文本提示|
 |alreadySignTxt|String|本日已经进行过签到|签到时点击已经签过到的日期时的文本提示|
 |signSuccessTxt|String|签到成功|签到成功时的文本提示|
 |limitBeginDate|Array|[]|限制可被选择的日期范围的开始日期，传参格式:[2018, 3, 1]|
