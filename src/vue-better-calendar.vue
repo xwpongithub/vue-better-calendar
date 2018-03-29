@@ -869,9 +869,7 @@
       },
       signedDates: {
         handler() {
-          this.$nextTick(() => {
-            this.render()
-          })
+          setTimeout(this.render, 60)
         },
         deep: true
       }
