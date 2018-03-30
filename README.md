@@ -49,13 +49,13 @@ vue-better-calendar是一个基于vue的日期选择插件，它提供了四种�
 |signedDates|Array|[]|已经签过到的日期,仅在签到模式下有用，传参格式：['2018-03-01', '2018-03-05']|
 |isZeroPad|Boolean|true|点选日期后返回结果中的日期月份和天数不够两位数时是否补0|
 |disabledDates|Array|[]|设置不可被选择的日期，传参格式:[[2018, 3, 1], [2018, 3, 24]]|
-|hasLine|Boolean|true|是否为日期项加上自带边框|
 |showLunar|Boolean|true|是否显示农历|
 |showDisableDate|Boolean|true|是否显示不可被选择的日期|
 |weeks|Array|['日', '一', '二', '三', '四', '五', '六']|星期栏文本|
 |months|Array|['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']|月份栏文本|
 |events|Object|{'2018-3-22': {className: 'price',title: '¥232',styles: {}}}|为某个日期添加单独的事件和文本|
 |ctlColor|String|#5e7a88|切换按钮颜色|
+|labelToday|Object|{showLabelToday: true,label: '今天'}|当天是否将显示的日期换成文本
 
 ### 支持事件
 |名称|回调参数|说明|

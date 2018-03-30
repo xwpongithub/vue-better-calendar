@@ -1,6 +1,8 @@
 <template>
   <div class="vue-better-calendar">
 
+    <div class="calendar-container">
+
     <div class="calendar-header">
       <div class="calendar-ctl">
 
@@ -49,16 +51,16 @@
         </ul>
       </div>
 
-      <div class="calendar-dates" :class="{'has-line': hasLine}">
+      <div class="calendar-dates">
 
         <div class="date-row" v-for="(dates, k1) in days">
            <ul>
              <li @click.stop="selectDate(k1, k2)" ref="dayItem" :style="styleObj(date)" v-for="(date,k2) in dates" class="calendar-day" :class="[{'is-weekend': k2 === 0 || k2 === 6}, getDateCls(date)]">
                <template v-if="!date.disabled">
                  <p class="text text-day" :style="{lineHeight: `${dayItemLineHeight}px`}" :class="{'is-special-day': k2 === 0 || k2 === 6|| ((date.isLunarFestival || date.isGregorianFestival) && showLunar)}">
-                   {{date.day}}
+                   {{labelToday.showLabelToday && date.isToday ? labelToday.label : date.day}}
                  </p>
-                 <p v-if="showLunar" class="text text-fest-day" :class="{'is-lunar': date.isLunarFestival, 'is-gregorian': date.isGregorianFestival}">
+                 <p v-if="showLunar" class="text text-fest-day" :class="{'is-special-day': k2 === 0 || k2 === 6,'is-lunar': date.isLunarFestival, 'is-gregorian': date.isGregorianFestival}">
                    {{date.lunar}}
                  </p>
                  <p class="text text-custom-day" v-if="date.eventName">
@@ -69,7 +71,7 @@
                  <p class="text text-day" :style="{lineHeight: `${dayItemLineHeight}px`}" :class="{'is-special-day': k2 === 0 || k2 === 6|| ((date.isLunarFestival || date.isGregorianFestival) && showLunar)}">
                    {{date.day}}
                  </p>
-                 <p v-if="showLunar" class="text text-fest-day" :class="{'is-lunar': date.isLunarFestival, 'is-gregorian': date.isGregorianFestival}">
+                 <p v-if="showLunar" class="text text-fest-day" :class="{'is-special-day': k2 === 0 || k2 === 6, 'is-lunar': date.isLunarFestival, 'is-gregorian': date.isGregorianFestival}">
                    {{date.lunar}}
                  </p>
                  <p class="text text-custom-day" v-if="date.eventName">
@@ -81,6 +83,8 @@
         </div>
 
       </div>
+    </div>
+
     </div>
 
     <transition name="panel-show">
@@ -186,10 +190,6 @@
           return []
         }
       },
-      hasLine: {
-        type: Boolean,
-        default: true
-      },
       // 是否显示农历
       showLunar: {
         type: Boolean,
@@ -219,6 +219,15 @@
         type: Object,
         default() {
           return {}
+        }
+      },
+      labelToday: {
+        type: Object,
+        default() {
+          return {
+            showLabelToday: true,
+            label: '今天'
+          }
         }
       },
       ctlColor: {
@@ -891,7 +900,7 @@
       },
       signedDates: {
         handler() {
-          setTimeout(this.render, 60)
+          this.$nextTick(this.render)
         },
         deep: true
       }
@@ -903,7 +912,11 @@
   .vue-better-calendar
     position: relative
     min-width:300px
+    box-sizing:border-box
+    padding:10px
     font-family: "PingFang SC","Hiragino Sans GB","STHeiti","Microsoft YaHei","WenQuanYi Micro Hei",sans-serif
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,.1)
+    border-radius:4px
     .calendar-header
       .calendar-ctl
         display:flex
@@ -952,6 +965,8 @@
                 text-align:center
                 font-size:14px
           .year
+            width:100px
+            margin:0 auto
             text-align:center
             font-size:10px
             line-height: 1
@@ -971,105 +986,57 @@
             padding:15px
       .calendar-dates
         position: relative
-        &.has-line
-          &::before, &::after
-            content: ""
-            display: block
-            position: absolute
-            transform-origin: 0 0
-          &::before
-            border-left: 1px solid #ccc
-            top: 0
-            left: 0
-            height: 100%
-            transform-origin: left 0
-          &::after
-            border-bottom: 1PX solid #ccc
-            left: 0
-            bottom: 0
-            width: 100%
-            transform-origin: 0 bottom
-          @media (min-resolution: 2dppx)
-            &::before,&::after
-              transform: scale(.5) translateZ(0)
-            &::before
-              height:200%
-            &::after
-              width:200%
-          @media (min-resolution: 3dppx)
-            &::before,&::after
-              transform: scale(.333) translateZ(0)
-            &::before
-              height:300%
-            &::after
-              width:300%
-          .date-row
-            ul
-              .calendar-day
-                position: relative
-                &::before, &::after
-                  content: ""
-                  display: block
-                  position: absolute
-                  transform-origin: 0 0
-                &::before
-                  border-top: 1px solid #ccc
-                  left: 0
-                  top: 0
-                  width: 100%
-                  transform-origin: 0 top
-                &::after
-                  border-right: 1px solid #ccc
-                  top: 0
-                  right: 0
-                  height: 100%
-                  transform-origin: right 0
-                @media (min-resolution: 2dppx)
-                  &::before,&::after
-                    transform: scale(.5) translateZ(0)
-                  &::before
-                    width:200%
-                  &::after
-                    height:200%
-                @media (min-resolution: 3dppx)
-                  &::before,&::after
-                    transform: scale(.333) translateZ(0)
-                  &::before
-                    width:300%
-                  &::after
-                    height:300%
+        background-color: #eeeeee
+        border-radius:4px
         .date-row
+          &:first-child
+            padding-top:2px
           ul
             display:flex
             width:100%
             overflow:hidden
             .calendar-day
               flex: 1
+              margin:0 2px 2px 0
               box-sizing:border-box
               font-family:inherit
               text-align:center
               padding:10px 5px
+              border-radius:4px
+              background-color: #fff
+              &:first-of-type
+                margin-left:2px
               &.disabled
-                color:#ccc
+                background-color: #D4D4D4
+                color:#B4B4B4
                 .text
                   &.text-day
+                    color: #B4B4B4
                     &.is-special-day
-                      color: #ccc
+                      color: #B4B4B4
                   &.text-fest-day
+                    color: #B4B4B4
+                    &.is-special-day
+                      color: #B4B4B4
                     &.is-lunar,&.is-gregorian
-                      color: #ccc
+                      color: #B4B4B4
               &.is-today
-                background-color: #6098bf
+                border:1px solid #bf7fba
+                background-color: #bf7fba
                 color:#fff
-              &.selected
                 .text
                   &.text-day
-                    border-radius:10px
-                    background-color: #5e7a88
-                    color:#fff
+                    color: #fff
                     &.is-special-day
-                      background-color: #ff0000
                       color: #fff
+                  &.text-fest-day
+                    color: #fff
+                    &.is-special-day
+                      color: #fff
+                    &.is-lunar,&.is-gregorian
+                      color: #fff
+              &.selected
+                border:1px solid #ff0000
                 &.is-today
                   color:#666
                   background-color:transparent
@@ -1089,6 +1056,8 @@
                   &.is-special-day
                     color: #ff0000
                 &.text-fest-day
+                  &.is-special-day
+                    color: #ff0000
                   &.is-lunar,&.is-gregorian
                     color: #09cd2c
     .calendar-year-panel
@@ -1100,7 +1069,7 @@
       overflow: auto
       left:0
       right:0
-      top:44px
+      top:64px
       bottom:0
       background-color: #fff
       transform:translateY(0)
