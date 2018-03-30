@@ -6,7 +6,8 @@ A calendar component for vuejs.
 
 ## 关于vue-better-calendar
 vue-better-calendar是一个基于vue的日期选择插件，它提供了四种日期选择模式（范围选择，多选，签到，单选）
-
+### demo
+#### [签到模式demo](https://codepen.io/lijinrong/pen/pLpxvo?editors=1111)
 
 ## 安装
 
