@@ -1,7 +1,8 @@
 <template>
   <div id="app">
     <!--<vue-better-calendar ref="calendar" mode="multi"/>-->
-    <vue-better-calendar ref="calendar" mode="sign" :signedDates="signedDates"/>
+    <vue-better-calendar ref="calendar" mode="sign" :signedDates="signedDates"
+    @select-sign-date="onSelectSignDate"/>
     <!--<vue-better-calendar ref="calendar" mode="single" v-model="singleDate"/>-->
     <!--<vue-better-calendar :disabledDates="disabledDates" ref="calendar" mode="multi" :limitBeginDate="[2018, 3, 22]" :limitEndDate="[2018, 3, 25]"/>-->
     <!--<vue-better-calendar :disabledDates="disabledDates" ref="calendar" :limitBeginDate="[2018, 3, 22]" :limitEndDate="[2018, 3, 25]"/>-->
@@ -9,6 +10,7 @@
     <!--<vue-better-calendar ref="calendar" v-model="range"/>-->
     <button @click="resetChoose">取消选择</button>
     <button @click="backToToday">回到今天</button>
+    <button @click="sign">点击签到</button>
   </div>
 </template>
 
@@ -29,6 +31,14 @@
       },
       backToToday() {
         this.$refs.calendar.setToday()
+      },
+      onSelectSignDate(dates) {
+        if (dates.status) {
+          this.signedDates = dates.signedDates
+        }
+      },
+      sign() {
+        this.$refs.calendar.sign()
       }
     }
   }

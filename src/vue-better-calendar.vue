@@ -670,7 +670,7 @@
           }
           let selectedDay = +new Date(`${this.year}/${this.month + 1}/${this.days[row][col].day}`)
           if (selectedDay !== +new Date(`${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`)) {
-            this.$emit(EVENT_SELECT_SIGN_DATE, {
+              this.$emit(EVENT_SELECT_SIGN_DATE, {
               status: false,
               msg: this.notSignInOtherDaysTxt,
               signedDates
@@ -705,6 +705,28 @@
           this.day = this.days[row][col].day
           this.defaultSingleSelectDay = [row, col]
           this.$emit(EVENT_SELECT_SINGLE_DATE, [String(this.year), String(pad(this.month + 1)), String(pad(this.days[row][col].day))])
+        }
+      },
+      sign() {
+        let now = new Date()
+        let year = now.getFullYear()
+        let month = now.getMonth() + 1
+        let date = now.getDate()
+        let today = +new Date(`${year}/${month}/${date}`)
+        let signedDates = this.signedDates.slice()
+        if (this._checkInDates(today) < 0) {
+          signedDates.push(`${year}-${pad(month)}-${pad(date)}`)
+          this.$emit(EVENT_SELECT_SIGN_DATE, {
+            status: true,
+            msg: this.signSuccessTxt,
+            signedDates
+          })
+        } else {
+          this.$emit(EVENT_SELECT_SIGN_DATE, {
+            status: false,
+            msg: this.alreadySignTxt,
+            signedDates
+          })
         }
       },
       getDateCls(date) {
@@ -1048,6 +1070,8 @@
                     &.is-special-day
                       background-color: #ff0000
                       color: #fff
+                &.is-today
+                  background-color:transparent
               .text
                 display: -webkit-box
                 overflow: hidden
