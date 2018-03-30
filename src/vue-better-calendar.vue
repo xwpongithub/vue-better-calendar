@@ -1071,6 +1071,7 @@
                       background-color: #ff0000
                       color: #fff
                 &.is-today
+                  color:#666
                   background-color:transparent
               .text
                 display: -webkit-box
@@ -1081,6 +1082,7 @@
                 -webkit-line-clamp: 1
                 -webkit-box-orient: vertical
                 line-height:1.25
+                color:#666
                 &.text-custom-day,&.text-fest-day
                   font-size:11px
                 &.text-day
