@@ -214,7 +214,6 @@
         }
       },
       // 自定义事件
-      // {'2018-2-28': 'wifeBirthday'}
       events: {
         type: Object,
         default() {
@@ -236,6 +235,14 @@
         validator(value) {
           return isValidColor(value)
         }
+      },
+      disableBeforeToday: {
+        type: Boolean,
+        default: false
+      },
+      disableAfterToday: {
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -403,6 +410,14 @@
                 options.disabled = true
               }
             }
+            let date = +new Date(`${this.year}/${this.month + 1}/${i}`)
+            let today = +new Date(`${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`)
+            if (this.disableBeforeToday) {
+              if (date < today) options.disabled = true
+            }
+            if (this.disableAfterToday) {
+              if (date > today) options.disabled = true
+            }
             let beginDate = this.beginDate
             let endDate = this.endDate
             if (beginDate.length) {
@@ -438,24 +453,32 @@
               },
               this._getLunarInfo(this.year, this.month + 1, i),
               this._getEvents(this.year, this.month + 1, i))
-              const limitBeginDate = this.limitBeginDate
-              if (limitBeginDate.length) {
-                let beginTime = Number(new Date(parseInt(limitBeginDate[0]), parseInt(limitBeginDate[1]) - 1, parseInt(limitBeginDate[2])))
-                if (beginTime > Number(new Date(this.year, this.month, i))) options.disabled = true
+            }
+            const limitBeginDate = this.limitBeginDate
+            if (limitBeginDate.length) {
+              let beginTime = Number(new Date(parseInt(limitBeginDate[0]), parseInt(limitBeginDate[1]) - 1, parseInt(limitBeginDate[2])))
+              if (beginTime > Number(new Date(this.year, this.month, i))) options.disabled = true
+            }
+            const limitEndDate = this.limitEndDate
+            if (limitEndDate.length) {
+              let endTime = Number(new Date(parseInt(limitEndDate[0]), parseInt(limitEndDate[1]) - 1, parseInt(limitEndDate[2])))
+              if (endTime < Number(new Date(this.year, this.month, i))) options.disabled = true
+            }
+            let disabledDates = this.disabledDates
+            if (disabledDates.length) {
+              if (disabledDates.filter(v => {
+                return this.year === v[0] && this.month === v[1] - 1 && i === v[2]
+              }).length) {
+                options.disabled = true
               }
-              const limitEndDate = this.limitEndDate
-              if (limitEndDate.length) {
-                let endTime = Number(new Date(parseInt(limitEndDate[0]), parseInt(limitEndDate[1]) - 1, parseInt(limitEndDate[2])))
-                if (endTime < Number(new Date(this.year, this.month, i))) options.disabled = true
-              }
-              let disabledDates = this.disabledDates
-              if (disabledDates.length) {
-                if (disabledDates.filter(v => {
-                  return this.year === v[0] && this.month === v[1] - 1 && i === v[2]
-                }).length) {
-                  options.disabled = true
-                }
-              }
+            }
+            let date = +new Date(`${this.year}/${this.month + 1}/${i}`)
+            let today = +new Date(`${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`)
+            if (this.disableBeforeToday) {
+              if (date < today) options.disabled = true
+            }
+            if (this.disableAfterToday) {
+              if (date > today) options.disabled = true
             }
             temp[line].push(options)
           } else if (this.mode === SIGN_MODE) {
@@ -492,6 +515,13 @@
                 options.disabled = true
               }
             }
+            let date = +new Date(`${this.year}/${this.month + 1}/${i}`)
+            if (this.disableBeforeToday) {
+              if (date < today) options.disabled = true
+            }
+            if (this.disableAfterToday) {
+              if (date > today) options.disabled = true
+            }
             temp[line].push(options)
           } else if (this.mode === SINGLE_MODE) {
             options = Object.assign({
@@ -527,6 +557,14 @@
                 }).length) {
                 options.disabled = true
               }
+            }
+            let date = +new Date(`${this.year}/${this.month + 1}/${i}`)
+            let today = +new Date(`${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`)
+            if (this.disableBeforeToday) {
+              if (date < today) options.disabled = true
+            }
+            if (this.disableAfterToday) {
+              if (date > today) options.disabled = true
             }
             temp[line].push(options)
           }
@@ -891,7 +929,7 @@
       },
       value: {
         handler() {
-          this.init()
+          if (this.mode !== MULTI_MODE) this.init()
         },
         deep: true
       },
@@ -920,6 +958,7 @@
     .calendar-header
       .calendar-ctl
         display:flex
+        justify-content:space-between
         padding:6px 0
         .calendar-btn
           position: relative
@@ -942,7 +981,6 @@
           &.calendar-btn-next
             text-align:right
         .calendar-ctl-month
-          flex:1
           .month
             position: relative
             margin:0 auto
@@ -996,6 +1034,7 @@
             width:100%
             overflow:hidden
             .calendar-day
+              position: relative
               flex: 1
               margin:0 2px 2px 0
               box-sizing:border-box
@@ -1036,7 +1075,20 @@
                     &.is-lunar,&.is-gregorian
                       color: #fff
               &.selected
-                border:1px solid #ff0000
+                &::after
+                  content:''
+                  display:block
+                  position: absolute
+                  box-sizing:border-box
+                  left:0
+                  top:0
+                  width:100%
+                  height:100%
+                  border-radius:4px
+                  border:1px solid #ff0000
+                &.disabled
+                  &::after
+                    display:none
                 &.is-today
                   color:#666
                   background-color:transparent

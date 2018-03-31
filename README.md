@@ -67,7 +67,9 @@ vue-better-calendar是一个基于vue的日期选择插件，它提供了四种�
 |months|Array|['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']|月份栏文本|
 |events|Object|{'2018-3-22': {className: 'price',title: '¥232',styles: {}}}|为某个日期添加单独的事件和文本|
 |ctlColor|String|#5e7a88|切换按钮颜色|
-|labelToday|Object|{showLabelToday: true,label: '今天'}|当天是否将显示的日期换成文本
+|labelToday|Object|{showLabelToday: true,label: '今天'}|当天是否将显示的日期换成文本|
+|disableBeforeToday|Boolean|false|是否将今天以前的日期全部设为不可用|
+|disableAfterToday|Boolean|false|是否将今天以后的日期全部设为不可用|
 
 ### 支持事件
 |名称|回调参数|说明|
