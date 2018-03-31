@@ -312,6 +312,14 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
         validator: function validator(value) {
           return (0, _utils.isValidColor)(value);
         }
+      },
+      disableBeforeToday: {
+        type: Boolean,
+        default: false
+      },
+      disableAfterToday: {
+        type: Boolean,
+        default: false
       }
     },
     data: function data() {
@@ -479,6 +487,14 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
                 options.disabled = true;
               }
             }
+            var date = +new Date(this.year + '/' + (this.month + 1) + '/' + i);
+            var today = +new Date(now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate());
+            if (this.disableBeforeToday) {
+              if (date < today) options.disabled = true;
+            }
+            if (this.disableAfterToday) {
+              if (date > today) options.disabled = true;
+            }
             var beginDate = this.beginDate;
             var endDate = this.endDate;
             if (beginDate.length) {
@@ -509,24 +525,32 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
                 selected: false,
                 disabled: false
               }, this._getLunarInfo(this.year, this.month + 1, i), this._getEvents(this.year, this.month + 1, i));
-              var _limitBeginDate = this.limitBeginDate;
-              if (_limitBeginDate.length) {
-                var _beginTime2 = Number(new Date(parseInt(_limitBeginDate[0]), parseInt(_limitBeginDate[1]) - 1, parseInt(_limitBeginDate[2])));
-                if (_beginTime2 > Number(new Date(this.year, this.month, i))) options.disabled = true;
+            }
+            var _limitBeginDate = this.limitBeginDate;
+            if (_limitBeginDate.length) {
+              var _beginTime2 = Number(new Date(parseInt(_limitBeginDate[0]), parseInt(_limitBeginDate[1]) - 1, parseInt(_limitBeginDate[2])));
+              if (_beginTime2 > Number(new Date(this.year, this.month, i))) options.disabled = true;
+            }
+            var _limitEndDate = this.limitEndDate;
+            if (_limitEndDate.length) {
+              var _endTime2 = Number(new Date(parseInt(_limitEndDate[0]), parseInt(_limitEndDate[1]) - 1, parseInt(_limitEndDate[2])));
+              if (_endTime2 < Number(new Date(this.year, this.month, i))) options.disabled = true;
+            }
+            var _disabledDates = this.disabledDates;
+            if (_disabledDates.length) {
+              if (_disabledDates.filter(function (v) {
+                return _this2.year === v[0] && _this2.month === v[1] - 1 && i === v[2];
+              }).length) {
+                options.disabled = true;
               }
-              var _limitEndDate = this.limitEndDate;
-              if (_limitEndDate.length) {
-                var _endTime2 = Number(new Date(parseInt(_limitEndDate[0]), parseInt(_limitEndDate[1]) - 1, parseInt(_limitEndDate[2])));
-                if (_endTime2 < Number(new Date(this.year, this.month, i))) options.disabled = true;
-              }
-              var _disabledDates = this.disabledDates;
-              if (_disabledDates.length) {
-                if (_disabledDates.filter(function (v) {
-                  return _this2.year === v[0] && _this2.month === v[1] - 1 && i === v[2];
-                }).length) {
-                  options.disabled = true;
-                }
-              }
+            }
+            var _date = +new Date(this.year + '/' + (this.month + 1) + '/' + i);
+            var _today = +new Date(now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate());
+            if (this.disableBeforeToday) {
+              if (_date < _today) options.disabled = true;
+            }
+            if (this.disableAfterToday) {
+              if (_date > _today) options.disabled = true;
             }
             temp[line].push(options);
           } else if (this.mode === SIGN_MODE) {
@@ -538,8 +562,8 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
               disabled: false
             }, this._getLunarInfo(this.year, this.month + 1, i), this._getEvents(this.year, this.month + 1, i));
             var everyDay = +new Date(this.year + '/' + (this.month + 1) + '/' + i);
-            var today = +new Date(now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate());
-            if (everyDay === today) options.isToday = true;
+            var _today2 = +new Date(now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate());
+            if (everyDay === _today2) options.isToday = true;
             if (this._checkInDates(everyDay) > -1) {
               options.selected = true;
             }
@@ -560,6 +584,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
               }).length) {
                 options.disabled = true;
               }
+            }
+            var _date2 = +new Date(this.year + '/' + (this.month + 1) + '/' + i);
+            if (this.disableBeforeToday) {
+              if (_date2 < _today2) options.disabled = true;
+            }
+            if (this.disableAfterToday) {
+              if (_date2 > _today2) options.disabled = true;
             }
             temp[line].push(options);
           } else if (this.mode === SINGLE_MODE) {
@@ -594,6 +625,14 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
               }).length) {
                 options.disabled = true;
               }
+            }
+            var _date3 = +new Date(this.year + '/' + (this.month + 1) + '/' + i);
+            var _today3 = +new Date(now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate());
+            if (this.disableBeforeToday) {
+              if (_date3 < _today3) options.disabled = true;
+            }
+            if (this.disableAfterToday) {
+              if (_date3 > _today3) options.disabled = true;
             }
             temp[line].push(options);
           }
@@ -950,7 +989,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
       value: {
         handler: function handler() {
-          this.init();
+          if (this.mode !== MULTI_MODE) this.init();
         },
 
         deep: true
@@ -1143,7 +1182,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     };
   }
 
-  _vueBetterCalendar2.default.version = "1.2.0";
+  _vueBetterCalendar2.default.version = "1.3.0";
 
   _vueBetterCalendar2.default.install = function (Vue) {
     Vue.component(_vueBetterCalendar2.default.name, _vueBetterCalendar2.default);
@@ -1166,7 +1205,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__);
 /* harmony namespace reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_ed510ece_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_e6c835c4_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__ = __webpack_require__(52);
 function injectStyle (ssrContext) {
   __webpack_require__(15)
 }
@@ -1186,7 +1225,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue___default.a,
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_ed510ece_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_e6c835c4_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -1207,7 +1246,7 @@ var content = __webpack_require__(16);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(18)("f4d0982c", content, true, {});
+var update = __webpack_require__(18)("11668123", content, true, {});
 
 /***/ }),
 /* 16 */
@@ -1218,7 +1257,7 @@ exports = module.exports = __webpack_require__(17)(false);
 
 
 // module
-exports.push([module.i, ".vue-better-calendar{position:relative;min-width:300px;-webkit-box-sizing:border-box;box-sizing:border-box;padding:10px;font-family:PingFang SC,Hiragino Sans GB,STHeiti,Microsoft YaHei,WenQuanYi Micro Hei,sans-serif;-webkit-box-shadow:0 2px 12px 0 rgba(0,0,0,.1);box-shadow:0 2px 12px 0 rgba(0,0,0,.1);border-radius:4px}.vue-better-calendar .calendar-header .calendar-ctl{display:-webkit-box;display:-webkit-flex;display:flex;padding:6px 0}.vue-better-calendar .calendar-header .calendar-ctl .calendar-btn{position:relative;margin-top:6px;-webkit-box-flex:0;-webkit-flex:0 0 20px;flex:0 0 20px;width:20px;vertical-align:middle}.vue-better-calendar .calendar-header .calendar-ctl .calendar-btn:after{content:\"\";display:block;position:absolute;pointer-events:none;left:-10px;top:-10px;z-index:15;width:40px;height:40px}.vue-better-calendar .calendar-header .calendar-ctl .calendar-btn.calendar-btn-prev{text-align:left}.vue-better-calendar .calendar-header .calendar-ctl .calendar-btn.calendar-btn-next{text-align:right}.vue-better-calendar .calendar-header .calendar-ctl .calendar-ctl-month{-webkit-box-flex:1;-webkit-flex:1;flex:1}.vue-better-calendar .calendar-header .calendar-ctl .calendar-ctl-month .month{position:relative;margin:0 auto;width:100px;height:20px;overflow:hidden;text-align:center;color:#5e7a88}.vue-better-calendar .calendar-header .calendar-ctl .calendar-ctl-month .month .select-month-panel{position:absolute;left:0;top:0;height:240px;width:100%;-webkit-transition:top .5s cubic-bezier(.075,.82,.165,1);transition:top .5s cubic-bezier(.075,.82,.165,1)}.vue-better-calendar .calendar-header .calendar-ctl .calendar-ctl-month .month .select-month-panel .item{overflow:hidden;height:20px;width:100%;text-align:center;font-size:14px}.vue-better-calendar .calendar-header .calendar-ctl .calendar-ctl-month .year{width:100px;margin:0 auto;text-align:center;font-size:10px;line-height:1;color:#999}.vue-better-calendar .calendar-body .calendar-weeks ul{display:-webkit-box;display:-webkit-flex;display:flex;width:100%;overflow:hidden}.vue-better-calendar .calendar-body .calendar-weeks ul .weekday{-webkit-box-flex:1;-webkit-flex:1;flex:1;-webkit-box-sizing:border-box;box-sizing:border-box;font-family:inherit;text-align:center;font-size:14px;padding:15px}.vue-better-calendar .calendar-body .calendar-dates{position:relative;background-color:#eee;border-radius:4px}.vue-better-calendar .calendar-body .calendar-dates .date-row:first-child{padding-top:2px}.vue-better-calendar .calendar-body .calendar-dates .date-row ul{display:-webkit-box;display:-webkit-flex;display:flex;width:100%;overflow:hidden}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day{-webkit-box-flex:1;-webkit-flex:1;flex:1;margin:0 2px 2px 0;-webkit-box-sizing:border-box;box-sizing:border-box;font-family:inherit;text-align:center;padding:10px 5px;border-radius:4px;background-color:#fff}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day:first-of-type{margin-left:2px}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled{background-color:#d4d4d4;color:#b4b4b4}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled .text.text-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled .text.text-day.is-special-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled .text.text-fest-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled .text.text-fest-day.is-gregorian,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled .text.text-fest-day.is-lunar,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled .text.text-fest-day.is-special-day{color:#b4b4b4}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today{border:1px solid #bf7fba;background-color:#bf7fba;color:#fff}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today .text.text-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today .text.text-day.is-special-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today .text.text-fest-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today .text.text-fest-day.is-gregorian,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today .text.text-fest-day.is-lunar,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today .text.text-fest-day.is-special-day{color:#fff}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.selected{border:1px solid red}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.selected.is-today{color:#666;background-color:transparent}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text{display:-webkit-box;overflow:hidden;text-overflow:ellipsis;word-wrap:break-word;white-space:normal!important;-webkit-line-clamp:1;-webkit-box-orient:vertical;line-height:1.25;color:#666}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text.text-custom-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text.text-fest-day{font-size:11px}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text.text-day.is-special-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text.text-fest-day.is-special-day{color:red}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text.text-fest-day.is-gregorian,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text.text-fest-day.is-lunar{color:#09cd2c}.vue-better-calendar .calendar-year-panel{position:absolute;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-flex-wrap:wrap;flex-wrap:wrap;overflow:auto;left:0;right:0;top:64px;bottom:0;background-color:#fff;-webkit-transform:translateY(0);transform:translateY(0)}.vue-better-calendar .calendar-year-panel .item-year{margin:0 5px;width:60px;line-height:30px;border-radius:20px;text-align:center;border:1px solid #fbfbfb;color:#999}.vue-better-calendar .calendar-year-panel .item-year.active{border:1px solid #5e7a88;background-color:#5e7a88;color:#fff}.vue-better-calendar .calendar-year-panel.panel-show-enter,.vue-better-calendar .calendar-year-panel.panel-show-leave-to{opacity:0;-webkit-transform:translateY(-10px);transform:translateY(-10px)}.vue-better-calendar .calendar-year-panel.panel-show-enter-active,.vue-better-calendar .calendar-year-panel.panel-show-leave-active{-webkit-transition:all .5s cubic-bezier(.075,.82,.165,1);transition:all .5s cubic-bezier(.075,.82,.165,1)}", ""]);
+exports.push([module.i, ".vue-better-calendar{position:relative;min-width:300px;-webkit-box-sizing:border-box;box-sizing:border-box;padding:10px;font-family:PingFang SC,Hiragino Sans GB,STHeiti,Microsoft YaHei,WenQuanYi Micro Hei,sans-serif;-webkit-box-shadow:0 2px 12px 0 rgba(0,0,0,.1);box-shadow:0 2px 12px 0 rgba(0,0,0,.1);border-radius:4px}.vue-better-calendar .calendar-header .calendar-ctl{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;padding:6px 0}.vue-better-calendar .calendar-header .calendar-ctl .calendar-btn{position:relative;margin-top:6px;-webkit-box-flex:0;-webkit-flex:0 0 20px;flex:0 0 20px;width:20px;vertical-align:middle}.vue-better-calendar .calendar-header .calendar-ctl .calendar-btn:after{content:\"\";display:block;position:absolute;pointer-events:none;left:-10px;top:-10px;z-index:15;width:40px;height:40px}.vue-better-calendar .calendar-header .calendar-ctl .calendar-btn.calendar-btn-prev{text-align:left}.vue-better-calendar .calendar-header .calendar-ctl .calendar-btn.calendar-btn-next{text-align:right}.vue-better-calendar .calendar-header .calendar-ctl .calendar-ctl-month .month{position:relative;margin:0 auto;width:100px;height:20px;overflow:hidden;text-align:center;color:#5e7a88}.vue-better-calendar .calendar-header .calendar-ctl .calendar-ctl-month .month .select-month-panel{position:absolute;left:0;top:0;height:240px;width:100%;-webkit-transition:top .5s cubic-bezier(.075,.82,.165,1);transition:top .5s cubic-bezier(.075,.82,.165,1)}.vue-better-calendar .calendar-header .calendar-ctl .calendar-ctl-month .month .select-month-panel .item{overflow:hidden;height:20px;width:100%;text-align:center;font-size:14px}.vue-better-calendar .calendar-header .calendar-ctl .calendar-ctl-month .year{width:100px;margin:0 auto;text-align:center;font-size:10px;line-height:1;color:#999}.vue-better-calendar .calendar-body .calendar-weeks ul{display:-webkit-box;display:-webkit-flex;display:flex;width:100%;overflow:hidden}.vue-better-calendar .calendar-body .calendar-weeks ul .weekday{-webkit-box-flex:1;-webkit-flex:1;flex:1;-webkit-box-sizing:border-box;box-sizing:border-box;font-family:inherit;text-align:center;font-size:14px;padding:15px}.vue-better-calendar .calendar-body .calendar-dates{position:relative;background-color:#eee;border-radius:4px}.vue-better-calendar .calendar-body .calendar-dates .date-row:first-child{padding-top:2px}.vue-better-calendar .calendar-body .calendar-dates .date-row ul{display:-webkit-box;display:-webkit-flex;display:flex;width:100%;overflow:hidden}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day{position:relative;-webkit-box-flex:1;-webkit-flex:1;flex:1;margin:0 2px 2px 0;-webkit-box-sizing:border-box;box-sizing:border-box;font-family:inherit;text-align:center;padding:10px 5px;border-radius:4px;background-color:#fff}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day:first-of-type{margin-left:2px}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled{background-color:#d4d4d4;color:#b4b4b4}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled .text.text-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled .text.text-day.is-special-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled .text.text-fest-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled .text.text-fest-day.is-gregorian,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled .text.text-fest-day.is-lunar,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.disabled .text.text-fest-day.is-special-day{color:#b4b4b4}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today{border:1px solid #bf7fba;background-color:#bf7fba;color:#fff}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today .text.text-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today .text.text-day.is-special-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today .text.text-fest-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today .text.text-fest-day.is-gregorian,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today .text.text-fest-day.is-lunar,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.is-today .text.text-fest-day.is-special-day{color:#fff}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.selected:after{content:\"\";display:block;position:absolute;-webkit-box-sizing:border-box;box-sizing:border-box;left:0;top:0;width:100%;height:100%;border-radius:4px;border:1px solid red}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.selected.disabled:after{display:none}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day.selected.is-today{color:#666;background-color:transparent}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text{display:-webkit-box;overflow:hidden;text-overflow:ellipsis;word-wrap:break-word;white-space:normal!important;-webkit-line-clamp:1;-webkit-box-orient:vertical;line-height:1.25;color:#666}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text.text-custom-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text.text-fest-day{font-size:11px}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text.text-day.is-special-day,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text.text-fest-day.is-special-day{color:red}.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text.text-fest-day.is-gregorian,.vue-better-calendar .calendar-body .calendar-dates .date-row ul .calendar-day .text.text-fest-day.is-lunar{color:#09cd2c}.vue-better-calendar .calendar-year-panel{position:absolute;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;-webkit-box-align:center;-webkit-align-items:center;align-items:center;-webkit-flex-wrap:wrap;flex-wrap:wrap;overflow:auto;left:0;right:0;top:64px;bottom:0;background-color:#fff;-webkit-transform:translateY(0);transform:translateY(0)}.vue-better-calendar .calendar-year-panel .item-year{margin:0 5px;width:60px;line-height:30px;border-radius:20px;text-align:center;border:1px solid #fbfbfb;color:#999}.vue-better-calendar .calendar-year-panel .item-year.active{border:1px solid #5e7a88;background-color:#5e7a88;color:#fff}.vue-better-calendar .calendar-year-panel.panel-show-enter,.vue-better-calendar .calendar-year-panel.panel-show-leave-to{opacity:0;-webkit-transform:translateY(-10px);transform:translateY(-10px)}.vue-better-calendar .calendar-year-panel.panel-show-enter-active,.vue-better-calendar .calendar-year-panel.panel-show-leave-active{-webkit-transition:all .5s cubic-bezier(.075,.82,.165,1);transition:all .5s cubic-bezier(.075,.82,.165,1)}", ""]);
 
 // exports
 
