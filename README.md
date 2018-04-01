@@ -6,9 +6,10 @@ A calendar component for vuejs.
 
 ## 关于vue-better-calendar
 vue-better-calendar是一个基于vue的日期选择插件，它提供了四种日期选择模式（范围选择，多选，签到，单选）
-### demo
-#### [签到模式demo](https://codepen.io/lijinrong/pen/pLpxvo?editors=1111)
-#### [单选模式demo](https://codepen.io/lijinrong/pen/bvvrpW)
+
+## 在线示例
+[签到模式](https://codepen.io/lijinrong/pen/pLpxvo?editors=1111)
+[单选模式](https://codepen.io/lijinrong/pen/bvvrpW)
 
 ## 安装
 
@@ -31,10 +32,21 @@ vue-better-calendar是一个基于vue的日期选择插件，它提供了四种�
 ### 直接连入页面使用
 ```javascript
   <script src="https://unpkg.com/vue@2.5.16/dist/vue.js"></script>
-  <script src="https://unpkg.com/vue-better-calendar@1.0.0/dist/vue-better-calendar.js"></script>
+  <script src="https://unpkg.com/vue-better-calendar@1.3.0/dist/vue-better-calendar.js"></script>
 ```
+
 ```html
-  <vue-better-calendar></vue-better-calendar>
+  <div id="app">
+    <vue-better-calendar></vue-better-calendar>
+  </div>
+```
+
+```javascript
+  <script>
+    new Vue({
+      el: '#app'
+    })
+  </script>
 ```
 
 ### 参数
@@ -50,13 +62,15 @@ vue-better-calendar是一个基于vue的日期选择插件，它提供了四种�
 |signedDates|Array|[]|已经签过到的日期,仅在签到模式下有用，传参格式：['2018-03-01', '2018-03-05']|
 |isZeroPad|Boolean|true|点选日期后返回结果中的日期月份和天数不够两位数时是否补0|
 |disabledDates|Array|[]|设置不可被选择的日期，传参格式:[[2018, 3, 1], [2018, 3, 24]]|
-|hasLine|Boolean|true|是否为日期项加上自带边框|
 |showLunar|Boolean|true|是否显示农历|
 |showDisableDate|Boolean|true|是否显示不可被选择的日期|
 |weeks|Array|['日', '一', '二', '三', '四', '五', '六']|星期栏文本|
 |months|Array|['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']|月份栏文本|
 |events|Object|{'2018-3-22': {className: 'price',title: '¥232',styles: {}}}|为某个日期添加单独的事件和文本|
 |ctlColor|String|#5e7a88|切换按钮颜色|
+|labelToday|Object|{showLabelToday: true,label: '今天'}|当天是否将显示的日期换成文本|
+|disableBeforeToday|Boolean|false|是否将今天以前的日期全部设为不可用|
+|disableAfterToday|Boolean|false|是否将今天以后的日期全部设为不可用|
 
 ### 支持事件
 |名称|回调参数|说明|
@@ -77,3 +91,4 @@ vue-better-calendar是一个基于vue的日期选择插件，它提供了四种�
 |:-:|:-:|
 |setToday|选中当天日期|
 |resetRangDate|范围选择模式下，重置已选择的日期范围|
+|sign|单独通过按钮点击进行签到，会触发select-sign-date事件|
