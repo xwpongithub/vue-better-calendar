@@ -9,7 +9,10 @@ vue-better-calendar是一个基于vue的日期选择插件，它提供了四种�
 
 ## 在线示例
 [签到模式](https://codepen.io/lijinrong/pen/pLpxvo?editors=1111)
+
 [单选模式](https://codepen.io/lijinrong/pen/bvvrpW)
+
+[范围选择模式](https://codepen.io/lijinrong/pen/MVGKLP?editors=1010)
 
 ## 安装
 
