@@ -74,8 +74,8 @@ vue-better-calendar是一个基于vue的日期选择插件，它提供了四种�
 |labelToday|Object|{showLabelToday: true,label: '今天'}|当天是否将显示的日期换成文本|
 |disableBeforeToday|Boolean|false|是否将今天以前的日期全部设为不可用|
 |disableAfterToday|Boolean|false|是否将今天以后的日期全部设为不可用|
-|hideHeader|Boolean|false|隐藏顶部日期月份选择|
-|hideWeeks|Boolean|false|隐藏星期|
+|hideHeader|Boolean|false|隐藏顶部日期月份选择显示|
+|hideWeeks|Boolean|false|隐藏星期显示|
 
 ### 支持事件
 |名称|回调参数|说明|
