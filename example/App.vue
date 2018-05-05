@@ -3,7 +3,7 @@
     <!--<vue-better-calendar ref="calendar" mode="multi"/>-->
     <!--<vue-better-calendar ref="calendar" mode="sign" :signedDates="signedDates"-->
     <!--@select-sign-date="onSelectSignDate"/>-->
-    <vue-better-calendar ref="calendar" mode="multi" v-model="multiDays"
+    <vue-better-calendar class="hide" ref="calendar" mode="multi" v-model="multiDays"
                          :disableAfterToday="true"
                          :disableBeforeToday="true"/>
     <!--<vue-better-calendar ref="calendar" mode="single" v-model="singleDate"/>-->
@@ -52,4 +52,7 @@
   #app
     padding:10px
     box-sizing:border-box
+    .vue-better-calendar
+      .calendar-header
+        display:none
 </style>

@@ -3,7 +3,7 @@
 
     <div class="calendar-container">
 
-    <div class="calendar-header">
+    <div class="calendar-header" :class="{'calendar-header_hide': hideHeader}">
       <div class="calendar-ctl">
 
         <div class="calendar-btn calendar-btn-prev" @click.stop="prev">
@@ -43,7 +43,7 @@
     </div>
 
     <div class="calendar-body">
-      <div class="calendar-weeks">
+      <div class="calendar-weeks" :class="{'calendar-weeks_hide':hideWeeks}">
         <ul>
           <li v-for="weekday in weeks" class="weekday">
             <span>{{weekday}}</span>
@@ -241,6 +241,14 @@
         default: false
       },
       disableAfterToday: {
+        type: Boolean,
+        default: false
+      },
+      hideHeader: {
+        type: Boolean,
+        default: false
+      },
+      hideWeeks: {
         type: Boolean,
         default: false
       }
@@ -956,6 +964,8 @@
     box-shadow: 0 2px 12px 0 rgba(0,0,0,.1)
     border-radius:4px
     .calendar-header
+      &.calendar-header_hide
+        display:none
       .calendar-ctl
         display:flex
         justify-content:space-between
@@ -1011,6 +1021,8 @@
             color:#999
     .calendar-body
       .calendar-weeks
+        &.calendar-weeks_hide
+          display:none
         ul
           display:flex
           width:100%
