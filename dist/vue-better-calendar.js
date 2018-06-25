@@ -200,6 +200,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
   var EVENT_RESET_SELECT_RANGE_DATE = 'reset-select-range-date';
   var EVENT_NEXT = 'next';
   var EVENT_PREV = 'prev';
+  var EVENT_READY = 'ready';
 
   exports.default = {
     name: COMPONENT_NAME,
@@ -404,8 +405,6 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
     methods: {
       init: function init() {
-        var _this = this;
-
         var now = new Date();
         this.year = now.getFullYear();
         this.month = now.getMonth();
@@ -430,12 +429,10 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
             this.day = parseInt(this.value[2]);
           }
         }
-        this.$nextTick(function () {
-          _this.render();
-        });
+        this.render(true);
       },
-      render: function render() {
-        var _this2 = this;
+      render: function render(isInit) {
+        var _this = this;
 
         var year = this.year;
         var month = this.month;
@@ -490,7 +487,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
             var disabledDates = this.disabledDates;
             if (disabledDates.length) {
               if (disabledDates.filter(function (v) {
-                return _this2.year === v[0] && _this2.month === v[1] - 1 && i === v[2];
+                return _this.year === v[0] && _this.month === v[1] - 1 && i === v[2];
               }).length) {
                 options.disabled = true;
               }
@@ -516,7 +513,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
             temp[line].push(options);
           } else if (this.mode === MULTI_MODE) {
             if (this.value.filter(function (v) {
-              return _this2.year === v[0] && _this2.month === v[1] - 1 && i === v[2];
+              return _this.year === v[0] && _this.month === v[1] - 1 && i === v[2];
             }).length) {
               options = (0, _assign2.default)({
                 day: i,
@@ -547,7 +544,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
             var _disabledDates = this.disabledDates;
             if (_disabledDates.length) {
               if (_disabledDates.filter(function (v) {
-                return _this2.year === v[0] && _this2.month === v[1] - 1 && i === v[2];
+                return _this.year === v[0] && _this.month === v[1] - 1 && i === v[2];
               }).length) {
                 options.disabled = true;
               }
@@ -588,7 +585,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
             var _disabledDates2 = this.disabledDates;
             if (_disabledDates2.length) {
               if (_disabledDates2.filter(function (v) {
-                return _this2.year === v[0] && _this2.month === v[1] - 1 && i === v[2];
+                return _this.year === v[0] && _this.month === v[1] - 1 && i === v[2];
               }).length) {
                 options.disabled = true;
               }
@@ -629,7 +626,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
             var _disabledDates3 = this.disabledDates;
             if (_disabledDates3.length) {
               if (_disabledDates3.filter(function (v) {
-                return _this2.year === v[0] && _this2.month === v[1] - 1 && i === v[2];
+                return _this.year === v[0] && _this.month === v[1] - 1 && i === v[2];
               }).length) {
                 options.disabled = true;
               }
@@ -677,17 +674,18 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
         }
         this.days = temp;
         setTimeout(function () {
-          if (_this2.$refs.dayItem) {
-            var dayItemWidth = _this2.$refs.dayItem[0].offsetWidth;
-            _this2.dayItemMinHeight = dayItemWidth || 0;
-            if (!_this2.showLunar) {
-              _this2.dayItemLineHeight = dayItemWidth - 20;
+          if (_this.$refs.dayItem) {
+            var dayItemWidth = _this.$refs.dayItem[0].offsetWidth;
+            _this.dayItemMinHeight = dayItemWidth || 0;
+            if (!_this.showLunar) {
+              _this.dayItemLineHeight = dayItemWidth - 20;
             }
           }
-        }, 20);
+          if (isInit) _this.$emit(EVENT_READY);
+        }, 30);
       },
       selectDate: function selectDate(row, col) {
-        var _this3 = this;
+        var _this2 = this;
 
         var now = new Date();
         var selectedDay = this.days[row][col];
@@ -735,8 +733,8 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
                 var dayStamp = +new Date(col.year + '/' + col.month + '/' + col.day);
                 if (!col.disabled) {
                   if (dayStamp >= beginStamp && dayStamp <= endStamp) {
-                    var _tempMonth = _this3.isZeroPad ? (0, _utils.pad)(col.month) : col.month;
-                    var _tempDay = _this3.isZeroPad ? (0, _utils.pad)(col.day) : col.day;
+                    var _tempMonth = _this2.isZeroPad ? (0, _utils.pad)(col.month) : col.month;
+                    var _tempDay = _this2.isZeroPad ? (0, _utils.pad)(col.day) : col.day;
                     selectedDates.push([String(col.year), String(_tempMonth), String(_tempDay)]);
                   }
                 }
@@ -747,11 +745,11 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
           this.render();
         } else if (this.mode === MULTI_MODE) {
           var filterDay = this.multiDays.filter(function (v) {
-            return _this3.year === v[0] && _this3.month === v[1] - 1 && _this3.days[row][col].day === v[2];
+            return _this2.year === v[0] && _this2.month === v[1] - 1 && _this2.days[row][col].day === v[2];
           });
           if (filterDay.length) {
             this.multiDays = this.multiDays.filter(function (v) {
-              return _this3.year !== v[0] || _this3.month !== v[1] - 1 || _this3.days[row][col].day !== v[2];
+              return _this2.year !== v[0] || _this2.month !== v[1] - 1 || _this2.days[row][col].day !== v[2];
             });
           } else {
             this.multiDays.push([this.year, this.month + 1, this.days[row][col].day]);
@@ -764,7 +762,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
           this.multiDays.forEach(function (date) {
             var tempMonth = date[1];
             var tempDay = date[2];
-            if (_this3.isZeroPad) {
+            if (_this2.isZeroPad) {
               tempMonth = (0, _utils.pad)(tempMonth);
               tempDay = (0, _utils.pad)(tempDay);
             }
@@ -898,7 +896,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
         this.$emit(EVENT_SELECT_YEAR, year);
       },
       setToday: function setToday() {
-        var _this4 = this;
+        var _this3 = this;
 
         var now = new Date();
         this.year = now.getFullYear();
@@ -908,7 +906,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
         this.days.forEach(function (item) {
           var day = item.find(function (vv) {
-            return vv.day === _this4.day && !vv.disabled;
+            return vv.day === _this3.day && !vv.disabled;
           });
           day && (day.selected = true);
         });
@@ -988,11 +986,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     },
     watch: {
       events: function events() {
-        var _this5 = this;
-
-        this.$nextTick(function () {
-          _this5.render();
-        });
+        this.render();
       },
 
       value: {
@@ -1008,7 +1002,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
       signedDates: {
         handler: function handler() {
-          this.$nextTick(this.render);
+          this.render();
         },
 
         deep: true
@@ -1190,7 +1184,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
     };
   }
 
-  _vueBetterCalendar2.default.version = "1.3.1";
+  _vueBetterCalendar2.default.version = "1.3.2";
 
   _vueBetterCalendar2.default.install = function (Vue) {
     Vue.component(_vueBetterCalendar2.default.name, _vueBetterCalendar2.default);
@@ -1213,7 +1207,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__);
 /* harmony namespace reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_505518e0_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_9e8be4e2_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__ = __webpack_require__(52);
 function injectStyle (ssrContext) {
   __webpack_require__(15)
 }
@@ -1233,7 +1227,7 @@ var __vue_scopeId__ = null
 var __vue_module_identifier__ = null
 var Component = normalizeComponent(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_node_modules_vue_loader_lib_selector_type_script_index_0_vue_better_calendar_vue___default.a,
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_505518e0_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__["a" /* default */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_9e8be4e2_hasScoped_false_transformToRequire_video_src_source_src_img_src_image_xlink_href_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_vue_better_calendar_vue__["a" /* default */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -1254,7 +1248,7 @@ var content = __webpack_require__(16);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(18)("63e0bf4f", content, true, {});
+var update = __webpack_require__(18)("cf51ec06", content, true, {});
 
 /***/ }),
 /* 16 */

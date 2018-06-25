@@ -5,7 +5,8 @@
     <!--@select-sign-date="onSelectSignDate"/>-->
     <vue-better-calendar class="hide" ref="calendar" mode="multi" v-model="multiDays"
                          :disableAfterToday="true"
-                         :disableBeforeToday="true"/>
+                         :disableBeforeToday="true"
+                          @ready="onReady"/>
     <!--<vue-better-calendar ref="calendar" mode="single" v-model="singleDate"/>-->
     <!--<vue-better-calendar :disabledDates="disabledDates" ref="calendar" mode="multi" :limitBeginDate="[2018, 3, 22]" :limitEndDate="[2018, 3, 25]"/>-->
     <!--<vue-better-calendar :disabledDates="disabledDates" ref="calendar" :limitBeginDate="[2018, 3, 22]" :limitEndDate="[2018, 3, 25]"/>-->
@@ -43,6 +44,9 @@
       },
       sign() {
         this.$refs.calendar.sign()
+      },
+      onReady() {
+        console.log('dom init')
       }
     }
   }

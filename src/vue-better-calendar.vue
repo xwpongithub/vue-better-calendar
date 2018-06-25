@@ -122,6 +122,7 @@
   const EVENT_RESET_SELECT_RANGE_DATE = 'reset-select-range-date'
   const EVENT_NEXT = 'next'
   const EVENT_PREV = 'prev'
+  const EVENT_READY = 'ready'
 
   export default {
     name: COMPONENT_NAME,
@@ -350,11 +351,9 @@
             this.day = parseInt(this.value[2])
           }
         }
-        this.$nextTick(() => {
-          this.render()
-        })
+        this.render(true)
       },
-      render() {
+      render(isInit) {
         let year = this.year
         let month = this.month
         let firstDayOfMonth = new Date(year, month, 1).getDay() // 前一个月的第一天是星期几
@@ -624,7 +623,8 @@
               this.dayItemLineHeight = dayItemWidth - 20
             }
           }
-        }, 20)
+          if (isInit) this.$emit(EVENT_READY)
+        }, 30)
       },
       // 选中日期
       selectDate(row, col) {
@@ -931,9 +931,7 @@
     },
     watch: {
       events() {
-        this.$nextTick(() => {
-          this.render()
-        })
+        this.render()
       },
       value: {
         handler() {
@@ -946,7 +944,7 @@
       },
       signedDates: {
         handler() {
-          this.$nextTick(this.render)
+          this.render()
         },
         deep: true
       }
